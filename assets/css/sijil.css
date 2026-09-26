@@ -846,6 +846,12 @@
 /* the current issue's photo as a band across the page */
 .frame--band { aspect-ratio: 3 / 1; }
 .frame--band > img { object-position: 50% 36%; }
+/* The lead story beside a list: the photo takes whatever height the list leaves, so no dead space opens under it */
+.feature--lead { display: flex; flex-direction: column; min-width: 0; }
+.feature--lead .feature__media { display: flex; flex: 1 1 auto; min-height: 300px; }
+.feature--lead .feature__media > .frame { flex: 1 1 auto; aspect-ratio: auto; }
+.feature--lead .feature__media > .frame > img { position: absolute; inset: 0; }
+.feature--lead .feature__body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px 32px; align-items: start; margin-top: 10px; }
 
 /* Map symbols: proportional circles (area reads truer than squares); the square stays a small type marker only */
 .pin__sq { border-radius: 50%; }
