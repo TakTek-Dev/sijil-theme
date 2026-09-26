@@ -110,6 +110,19 @@
     if (pager && pager.getAttribute('href') === '#') { e.preventDefault(); }
   });
 
+  /* 5b. Monitor: the period switch swaps figures, map and trend together */
+  $$('[data-period-switch]').forEach(function (sw) {
+    var root = sw.closest('.mon') || document;
+    $$('button[data-p]', sw).forEach(function (b) {
+      b.addEventListener('click', function () {
+        var p = b.getAttribute('data-p');
+        $$('button[data-p]', sw).forEach(function (x) { var on = x === b; x.classList.toggle('is-on', on); x.setAttribute('aria-pressed', String(on)); });
+        $$('[data-period]', root).forEach(function (el) { el.hidden = el.getAttribute('data-period') !== p; });
+        $$('.mon-gov', root).forEach(function (g) { g.setAttribute('data-lvl', g.getAttribute('data-lvl-' + p)); });
+      });
+    });
+  });
+
   /* 6. Fixed-size map widgets scale to their column ------------------- */
   function fitMaps() {
     $$('.fit').forEach(function (f) {

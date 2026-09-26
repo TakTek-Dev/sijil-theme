@@ -11,14 +11,14 @@ Content and numbers are real (Sijil's published briefs and monthly reports, Sept
 
 | File | Page |
 |---|---|
-| `index.html` | Home: the current issue as the cover (its photo cut into one square per documented violation), latest publications, data glimpse, previous issues sized by their counts, publications, dossiers, data centre, running totals |
+| `index.html` | Home: the field monitor first (map of the governorates by intensity, the period's figures by governorate and type, day-by-day trend, running totals; week / August switch), then the current issue, latest publications and briefs, periodic reports, publications, dossiers |
 | `report.html` | Monthly narrative report: the month in numbers, issue contents, downloads |
-| `reports.html` | Periodic reports archive: count-sized issue covers, each issue's contents, the year month by month |
+| `reports.html` | Periodic reports archive: issue covers, each issue's contents, the year month by month |
 | `article.html` | Article: head and tags, contents, figures inside the text, citation, related material |
 | `archive.html` | All content: numbered register entries, filters (a bottom sheet on phones and tablets) |
 | `tag.html` | Tag page: the reference piece, then everything carrying the tag |
 | `search.html` | Search results with the query marked |
-| `data.html` | Data centre: map, weekly/monthly chart, report builder, briefs, the @sijlnews feed |
+| `data.html` | Data centre (light): intensity map with proportional symbols, weekly/monthly chart, report builder, briefs, the @sijlnews feed |
 | `field-report.html` | Generated field report for a chosen period |
 | `brief.html` | Daily brief |
 | `about.html` · `contact.html` · `404.html` | Institution, contact, not found |

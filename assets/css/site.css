@@ -100,13 +100,10 @@ html.is-locked, html.is-locked body { overflow: hidden; }
   .sj.site main [style*="grid-template-columns:repeat(2,minmax(0,1fr))"],
   .sj.site main [style*="grid-template-columns:repeat(3,minmax(0,1fr))"],
   .sj.site main [style*="grid-template-columns:repeat(4,minmax(0,1fr))"],
-  .sj.site main [style*="grid-template-columns:27fr 19fr 24fr"],
   .sj.site main [style*="grid-template-columns:150px minmax(0,1fr);"],
   .sj.site main [style$="grid-template-columns:150px minmax(0,1fr)"] { grid-template-columns: minmax(0, 1fr) !important; row-gap: 24px !important; }
   .sj.site main [style*="grid-template-columns:repeat(3,minmax(0,1fr)) auto"] { grid-template-columns: minmax(0, 1fr) !important; row-gap: 20px !important; }
   .sj.site main [style*="grid-template-columns:repeat(3,minmax(0,1fr)) auto"] > * { border-inline-start: 0 !important; padding-inline-start: 0 !important; }
-  /* issue covers keep their count-sized widths when stacked: same height, width follows the count */
-  .sj.site main [style*="grid-template-columns:27fr 19fr 24fr"] .tiled { width: auto !important; height: 124px; max-width: 100%; }
   /* key figures: two by two */
   .sj.site main .stats { grid-auto-flow: row; grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .sj.site main .stats > .stat:nth-child(odd) { border-inline-start: 0; padding-inline-start: 0; }
@@ -146,6 +143,7 @@ html.is-locked, html.is-locked body { overflow: hidden; }
 }
 /* 1024–1279: desktop compositions with narrower columns */
 @media (max-width: 1279.98px) {
+  .sj.site main .delta { white-space: normal; }
   .sj.site main [style*="grid-template-columns:minmax(0,1fr) 176px"] { grid-template-columns: minmax(0, 1fr) 120px !important; }
   .sj.site main section[aria-labelledby="dc-title"] .grid-12,
   .sj.site main section[aria-labelledby="led-title"] .grid-12 { display: flex; flex-direction: column; row-gap: 36px; }
