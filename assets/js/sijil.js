@@ -76,17 +76,31 @@
   $$('[data-menu-close]').forEach(function (b) { b.addEventListener('click', closeMenu); });
 
   /* 2. Mega menu ("الإصدارات" on desktop) ------------------------------- */
-  var megaBtn = $('[data-mega]'), mega = $('#mega'), megaTimer = null;
-  function setMega(open) {
+  var megaBtn = $('[data-mega]'), mega = $('#mega'), megaTimer = null, megaPinned = false;
+  function setMega(open, pin) {
     if (!mega) return;
     mega.hidden = !open; megaBtn.setAttribute('aria-expanded', String(open));
+    megaPinned = open && !!pin;
   }
   if (megaBtn && mega) {
-    megaBtn.addEventListener('click', function (e) { e.preventDefault(); setMega(mega.hidden); });
+    // hovering opens it for a look; a click keeps it open, and only a second click closes it
+    // (a toggle on click would shut the menu the hover had just opened)
+    megaBtn.addEventListener('click', function (e) {
+      e.preventDefault(); clearTimeout(megaTimer);
+      if (mega.hidden) setMega(true, true);
+      else if (!megaPinned) megaPinned = true;
+      else setMega(false);
+    });
     if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
       [megaBtn, mega].forEach(function (el) {
-        el.addEventListener('mouseenter', function () { clearTimeout(megaTimer); megaTimer = setTimeout(function () { setMega(true); }, 120); });
-        el.addEventListener('mouseleave', function () { clearTimeout(megaTimer); megaTimer = setTimeout(function () { setMega(false); }, 220); });
+        el.addEventListener('mouseenter', function () {
+          clearTimeout(megaTimer);
+          if (mega.hidden) megaTimer = setTimeout(function () { setMega(true); }, 120);
+        });
+        el.addEventListener('mouseleave', function () {
+          clearTimeout(megaTimer);
+          if (!megaPinned) megaTimer = setTimeout(function () { setMega(false); }, 220);
+        });
       });
     }
     document.addEventListener('click', function (e) {
@@ -531,7 +545,7 @@
       }
       var mail = $('input[type="email"]', f);
       if (mail && !mail.value.trim()) { mail.focus(); toast('اكتب بريدك الإلكتروني أولا'); return; }
-      if (f.closest('.newsletter')) {
+      if (f.closest('.newsletter, .footer__nl')) {
         var ok = document.createElement('p'); ok.className = 'nl-done'; ok.setAttribute('role', 'status');
         ok.textContent = 'تم الاشتراك. تصلك النشرة صباح كل أحد.';
         f.replaceWith(ok); return;

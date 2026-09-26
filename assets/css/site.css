@@ -73,6 +73,12 @@ html.is-locked, html.is-locked body { overflow: hidden; }
    The generator writes layout inline; these rules re-flow it by the inline value they target. */
 @media (max-width: 1023.98px) {
   .sj.site main .grid-12 { display: flex; flex-direction: column; row-gap: 32px; }
+  /* the footer carries the newsletter; the sidebar copy would sit right above it */
+  .sj.site main .newsletter { display: none; }
+  /* results before the refining controls */
+  .sj.site main .search__facets { order: 2; }
+  /* a tab row that scrolls shows it: its far edge fades */
+  .sj.site main .tabs { mask-image: linear-gradient(to left, transparent 0, #000 28px); }
   .sj.site main .grid-12 > * { width: 100%; }
   .sj.site main .grid-12 > [style*="border-inline-start"] { border-inline-start: 0 !important; padding-inline-start: 0 !important; }
   .sj.site main .grid-12 > [style*="margin-top:-"] { margin-top: 0 !important; }
@@ -86,6 +92,20 @@ html.is-locked, html.is-locked body { overflow: hidden; }
 }
 @media (max-width: 767.98px) {
   .sj.site main h1 { font-size: clamp(27px, 7.6vw, 31px) !important; line-height: 1.42 !important; }
+  /* month axes: nine columns keep their names apart */
+  .sj.site main .bars, .sj.site main .bars__x { gap: 6px !important; }
+  .sj.site main .bars__x span { font-size: 10.5px; }
+  /* nine month names do not fit side by side on a phone: every other one steps down a line */
+  .sj.site main .bars__x span:nth-child(even) { padding-top: 16px; }
+  /* long filter rows scroll sideways instead of stacking five lines */
+  .sj.site main .chips--scroll { flex: 1 1 100%; min-width: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; mask-image: linear-gradient(to left, transparent 0, #000 28px); }
+  .sj.site main .chips--scroll::-webkit-scrollbar { display: none; }
+  .sj.site main .chips--scroll > * { flex-shrink: 0; }
+  /* the field report's trend has its own phone drawing */
+  .sj.site .trend--d { display: none; }
+  .sj.site .trend--m { display: block; }
+  /* a decorative giant س alone on a phone reads as a stray glyph */
+  .sj.site main .seen--xl { display: none; }
   /* a week of days scrolls sideways */
   .sj.site main [style*="grid-template-columns:repeat(9,minmax(0,1fr))"] { grid-template-columns: repeat(9, 68px) !important; overflow-x: auto; scrollbar-width: none; }
   .sj.site main .row { flex-wrap: wrap; row-gap: 10px; }

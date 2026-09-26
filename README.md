@@ -11,9 +11,9 @@ Content and numbers are real (Sijil's published briefs and monthly reports, Sept
 
 | File | Page |
 |---|---|
-| `index.html` | Home: the field monitor first (map of the governorates by intensity, the period's figures by governorate and type, day-by-day trend, running totals; week / August switch), then the current issue, latest publications and briefs, periodic reports, publications, dossiers |
+| `index.html` | Home: the field monitor first (map of the governorates by intensity, the period's figures by governorate and type, day-by-day trend, running totals; week / August switch), then latest publications and briefs, the shelf of 2026 monthly issues (each opens underneath), publications, dossiers |
 | `report.html` | Monthly narrative report: the month in numbers, issue contents, downloads |
-| `reports.html` | Periodic reports archive: issue covers, each issue's contents, the year month by month |
+| `reports.html` | Periodic reports archive: each issue with its figures and contents, the year month by month |
 | `article.html` | Article: head and tags, contents, figures inside the text, citation, related material |
 | `archive.html` | All content: numbered register entries, filters (a bottom sheet on phones and tablets) |
 | `tag.html` | Tag page: the reference piece, then everything carrying the tag |
@@ -52,7 +52,9 @@ Deliberately **not** animated: count-up numbers, parallax, image zoom on hover, 
 
 - Breakpoints: **≥1024** desktop · **768–1023** tablet · **<768** phone. Home uses the canvas's dedicated tablet and phone designs; the data centre and archive use the phone design below 768 and 1024. Every other page is one responsive body.
 - RTL throughout, logical properties. Corners follow the logo — soft turns, cut ends: 6px on surfaces and images, 4px on controls, 0 on data terminals (bars, rules, figures). Depth comes from three surfaces (page → section band → raised block), not shadows; shadows are for floating layers only.
-- Home rhythm: field monitor (headline written from the data) → latest → periodic reports led by the current issue → publications → dossiers → footer closing on Sijil's vision. Each section head carries its register line (latest record number, date, kind) instead of decorative numbering.
+- Home rhythm: field monitor (headline written from the data) → latest → periodic reports as a shelf of monthly issues → publications → dossiers → footer. Each section head carries its register line (latest record number, date, kind) instead of decorative numbering.
+- Markers: the logo's س (three strokes with cut ends) marks content types, colour keys, timeline points and the live dot; there are no square markers. Map symbols are circles.
+- Footer: logo and vision beside the weekly newsletter; five columns (publications, data centre, about, publishing rhythm, contact); the legal line with the latest record.
 - Fonts: Noto Kufi Arabic (headings, UI, numbers), Noto Naskh Arabic (reading), DM Mono (record numbers).
 
 Generated from the design canvas source (`design-canvas/build/site.py`); edit there and rebuild rather than editing these files by hand.
