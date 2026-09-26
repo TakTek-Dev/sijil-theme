@@ -614,6 +614,35 @@
     $$('[data-monitor]').forEach(function (mon) { mon.classList.add('mon-in'); });
   }
 
+  /* 19. Periodic issues: the shelf of monthly bars is a tablist; the chosen issue opens underneath */
+  $$('[data-issues]').forEach(function (box) {
+    var tabs = $$('[role="tab"]', box);
+    function select(tab, focus) {
+      tabs.forEach(function (t) {
+        var on = t === tab, panel = document.getElementById(t.getAttribute('aria-controls'));
+        t.setAttribute('aria-selected', on ? 'true' : 'false');
+        t.tabIndex = on ? 0 : -1;
+        if (panel) panel.hidden = !on;
+      });
+      if (focus) tab.focus();
+    }
+    box.addEventListener('pointerdown', function () { box.classList.add('is-used'); }, { once: true });
+    box.addEventListener('keydown', function () { box.classList.add('is-used'); }, { once: true });
+    tabs.forEach(function (t, i) {
+      t.addEventListener('click', function () { select(t); });
+      t.addEventListener('keydown', function (e) {
+        var rtl = getComputedStyle(box).direction === 'rtl', n = null;
+        if (e.key === 'ArrowLeft') n = rtl ? i + 1 : i - 1;
+        else if (e.key === 'ArrowRight') n = rtl ? i - 1 : i + 1;
+        else if (e.key === 'Home') n = 0;
+        else if (e.key === 'End') n = tabs.length - 1;
+        if (n === null) return;
+        e.preventDefault();
+        select(tabs[(n + tabs.length) % tabs.length], true);
+      });
+    });
+  });
+
   /* 18. Toast: enters and leaves by the same edge ------------------------ */
   function toast(msg) {
     var host = $('.toast-host'); if (!host) return;

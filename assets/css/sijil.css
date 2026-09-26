@@ -846,6 +846,102 @@
 /* the current issue's photo as a band across the page */
 .frame--band { aspect-ratio: 3 / 1; }
 .frame--band > img { object-position: 50% 36%; }
+/* Periodic issues: the year's issues as a shelf of bars; each bar is a tab that opens its issue underneath.
+   Bars are data terminals (square), the chosen one is navy, the month still being documented is hatched. */
+.issues { --H: 132px; }
+.issues__shelf { display: flex; align-items: stretch; }
+.issues__tabs { flex: 7 1 0; min-width: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.issues__tab { position: relative; display: flex; flex-direction: column; min-width: 0; margin: 0; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: center; text-decoration: none; cursor: pointer; }
+.issues__tab--next { flex: 1 1 0; }
+.issues__plot { display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 8px; height: calc(var(--H) + 30px); border-bottom: 2px solid var(--navy-800); }
+.issues__n { font: 700 14px/1 var(--font-kufi); color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.issues__bar { display: block; width: min(56px, 46%); height: calc(var(--v) * var(--H)); background: var(--navy-200); transition: background-color var(--dur-2) var(--ease-out); }
+.issues__m { display: flex; flex-direction: column; align-items: center; gap: 2px; padding-top: 12px; font: 600 14px/1.3 var(--font-kufi); color: var(--text-muted); }
+.issues__m small { font: 500 11.5px/1.3 var(--font-kufi); color: var(--text-subtle); }
+.issues__tab[aria-selected="true"] .issues__bar { background: var(--navy-800); }
+.issues__tab[aria-selected="true"] :is(.issues__n, .issues__m) { color: var(--navy-800); font-weight: 800; }
+.issues__tab[aria-selected="true"]::after { content: ""; position: absolute; left: 50%; bottom: -16px; width: 14px; height: 8px; transform: translateX(-50%); background: var(--navy-800); clip-path: polygon(0 0, 100% 0, 50% 100%); }
+.issues__tab--next .issues__bar { background: repeating-linear-gradient(135deg, var(--navy-200) 0 2px, transparent 2px 6px); box-shadow: inset 0 0 0 1px var(--navy-200); }
+.issues__tab--next .issues__plot { border-bottom-style: dashed; }
+@media (hover: hover) and (pointer: fine) {
+  .issues__tab[aria-selected="false"]:hover .issues__bar { background: var(--navy-300); }
+  .issues__tab:is([aria-selected="false"], .issues__tab--next):hover :is(.issues__n, .issues__m) { color: var(--navy-800); }
+}
+.issues__tab:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+.issues__hint { margin-bottom: 18px; font: 400 13px/1.6 var(--font-kufi); color: var(--text-subtle); }
+.issues__panel { margin-top: 22px; padding: 32px; }
+.issues__panel[hidden] { display: none; }
+/* only a switch fades the new issue in; the first paint is plain */
+.issues.is-used .issues__panel { transition: opacity var(--dur-3) var(--ease-out); }
+@starting-style { .issues.is-used .issues__panel { opacity: 0; } }
+/* the panel is one grid; each shape places the same items so neither side is left empty */
+.issues__main { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); column-gap: 40px; align-items: start; }
+.issues__main > * { min-width: 0; }
+.issues__meta { grid-area: meta; display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; }
+.issues__title { grid-area: title; margin-top: 10px; font: 800 30px/1.45 var(--font-kufi); color: var(--navy-800); text-wrap: balance; }
+.issues__title a { color: inherit; }
+.issues__lede { grid-area: lede; margin-top: 14px; font-size: 17.5px; }
+.issues__fig { grid-area: fig; margin-top: 18px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; }
+.issues__fig b { font: 800 36px/1 var(--font-kufi); color: var(--navy-800); font-variant-numeric: tabular-nums; }
+.issues__fig > span:not(.delta) { font: 700 15px/1.3 var(--font-kufi); color: var(--text-muted); }
+.issues__gov { grid-area: gov; margin-top: 14px; display: flex; flex-direction: column; gap: 10px; }
+.issues__acts { grid-area: acts; margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px; }
+.issues__side { grid-area: side; align-self: center; }
+.issues__side .issues__fig { margin-top: 0; }
+/* the photo takes the height of the text beside it, never less than a landscape band */
+.issues__media { grid-area: media; align-self: stretch; display: flex; flex-direction: column; }
+.issues__media > a { flex: 1 1 auto; display: flex; min-height: 220px; }
+.issues__media .frame { flex: 1 1 auto; aspect-ratio: auto; }
+.issues__media .frame > img { position: absolute; inset: 0; }
+.issues__media figcaption { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding-top: 10px; }
+.issues__panel--full .issues__main { grid-template-areas: "meta media" "title media" "lede media" "fig media" "gov media" "acts media"; grid-template-rows: repeat(5, auto) 1fr; }
+.issues__panel--photo .issues__main { grid-template-areas: "meta media" "title media" "fig media" "acts media"; grid-template-rows: repeat(3, auto) 1fr; }
+.issues__panel--plain .issues__main { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); grid-template-areas: "meta side" "title side"; }
+/* the parts sit on one release line; each part carries its own stretch of it, so a wrapped row gets its own line */
+.issues__parts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); row-gap: 22px; margin-top: 30px; }
+.issues__parts li { position: relative; display: flex; flex-direction: column; gap: 4px; min-width: 0; padding-top: 20px; padding-inline-end: 28px; border-top: 1px solid var(--border); }
+.issues__parts li::before { content: ""; position: absolute; top: -5px; inset-inline-start: 0; width: 9px; height: 9px; background: var(--c); }
+.issues__pd { font: 700 13px/1.4 var(--font-kufi); color: var(--ink-900); }
+.issues__pt { font: 500 12.5px/1.4 var(--font-kufi); color: var(--text-subtle); }
+.issues__parts a { font: 600 15px/1.6 var(--font-kufi); color: var(--ink-900); }
+@media (hover: hover) and (pointer: fine) { :is(.issues__title, .issues__parts) a:hover { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 5px; } }
+/* tablet: same shelf; the full issue puts its title across, then lede and figures beside the photo */
+.issues--t { --H: 112px; }
+.issues--t .issues__panel { padding: 24px; }
+.issues--t .issues__main { column-gap: 28px; }
+.issues--t .issues__title { font-size: 25px; }
+.issues--t .issues__panel--full .issues__main { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: "meta meta" "title title" "lede media" "fig media" "gov media" "acts acts"; grid-template-rows: auto auto auto auto 1fr auto; }
+.issues--t .issues__panel--full .issues__media { margin-top: 14px; }
+.issues--t .issues__parts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+/* phone: seven thin columns (the month still open is named in the hint), one column of content, photo first */
+.issues--m { --H: 84px; }
+.issues--m .issues__tabs { flex-basis: 100%; }
+.issues--m .issues__tab--next { display: none; }
+.issues--m .issues__plot { height: calc(var(--H) + 24px); gap: 6px; }
+.issues--m .issues__n { font-size: 11.5px; }
+.issues--m .issues__bar { width: 56%; }
+.issues--m .issues__m { padding-top: 9px; font-size: 11.5px; }
+.issues--m .issues__tab[aria-selected="true"]::after { bottom: -13px; width: 12px; height: 7px; }
+.issues--m .issues__hint { margin-bottom: 14px; font-size: 12.5px; }
+.issues--m .issues__panel { margin-top: 20px; padding: 18px 16px 20px; }
+.issues--m .issues__main { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; }
+.issues--m .issues__panel--full .issues__main { grid-template-areas: "media" "meta" "title" "lede" "fig" "gov" "acts"; }
+.issues--m .issues__panel--photo .issues__main { grid-template-areas: "media" "meta" "title" "fig" "acts"; }
+.issues--m .issues__panel--plain .issues__main { grid-template-areas: "meta" "title" "side"; }
+.issues--m .issues__media { margin-bottom: 16px; }
+.issues--m .issues__media > a { flex: none; min-height: 0; }
+.issues--m .issues__media .frame { aspect-ratio: 16 / 9; }
+.issues--m .issues__media figcaption { flex-direction: column; gap: 2px; }
+.issues--m .issues__side { margin-top: 16px; }
+.issues--m .issues__title { font-size: 21px; line-height: 1.5; }
+.issues--m .issues__lede { font-size: 16px; }
+.issues--m .issues__fig b { font-size: 30px; }
+.issues--m .issues__acts > :first-child { flex: 1 1 auto; }
+.issues--m .issues__parts { grid-template-columns: minmax(0, 1fr); row-gap: 14px; margin-top: 22px; padding-inline-start: 18px; border-inline-start: 1px solid var(--border); }
+.issues--m .issues__parts li { flex-direction: row; flex-wrap: wrap; align-items: baseline; gap: 0 10px; padding: 0; border-top: 0; }
+.issues--m .issues__parts a { flex-basis: 100%; margin-top: 2px; }
+.issues--m .issues__parts li::before { top: 6px; inset-inline-start: -23px; }
+
 /* The lead story beside a list: the photo takes whatever height the list leaves, so no dead space opens under it */
 .feature--lead { display: flex; flex-direction: column; min-width: 0; }
 .feature--lead .feature__media { display: flex; flex: 1 1 auto; min-height: 300px; }
