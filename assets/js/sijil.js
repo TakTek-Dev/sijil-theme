@@ -280,7 +280,7 @@
 
     function render() {
       var p = monData.periods[state.p];
-      swap(k('title'), p.title); swap(k('total'), p.total);
+      swap(k('lede'), p.lede); swap(k('title'), p.title); swap(k('total'), p.total);
       var dl = k('delta'); swap(dl, p.delta); dl.classList.toggle('delta--down', p.dcls === 'delta--down');
       swap(k('src-l'), 'المصدر: ' + p.src[0] + '، قيد'); swap(k('src-n'), p.src[1]);
       swap(k('strip'), p.strip); swap(k('strip2'), p.strip); swap(k('csv'), p.csv); swap(k('chart-t'), 'الانتهاكات ' + p.chart.t);
@@ -351,7 +351,8 @@
     function content(g) {
       var p = period(); if (!p) return '';
       var n = p.govs[g] || 0, share = p.total ? Math.round(n / p.total * 100) : 0;
-      var h = '<div class="mtip__h"><span>' + monData.govs[g] + '</span><b>' + n + '</b></div><div class="mtip__s">' + share + '% من انتهاكات ' + p.strip + '</div>';
+      var pinIc = '<svg class="ic ic--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><path d="M12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/></svg>';
+      var h = '<div class="mtip__h"><span class="mtip__g">' + pinIc + monData.govs[g] + '</span><b>' + n + '</b></div><div class="mtip__s">' + share + '% من انتهاكات ' + p.strip + '</div>';
       if (p.cross && p.cross[g]) {
         var top = p.cross[g].filter(function (t) { return t[1]; }).sort(function (a, b) { return b[1] - a[1]; }).slice(0, 3);
         h += '<ul>' + top.map(function (t) { return '<li><span>' + t[0] + '</span><b>' + t[1] + '</b></li>'; }).join('') + '</ul>';

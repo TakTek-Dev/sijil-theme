@@ -105,6 +105,9 @@ html.is-locked, html.is-locked body { overflow: hidden; }
   .sj.site main [style*="grid-template-columns:repeat(3,minmax(0,1fr)) auto"] { grid-template-columns: minmax(0, 1fr) !important; row-gap: 20px !important; }
   .sj.site main [style*="grid-template-columns:repeat(3,minmax(0,1fr)) auto"] > * { border-inline-start: 0 !important; padding-inline-start: 0 !important; }
   /* key figures: two by two */
+  .sj.site main .mon-totals { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; row-gap: 22px !important; }
+  .sj.site main .mon-totals__c { padding-inline: 14px; }
+  .sj.site main .mon-totals__c b { font-size: 32px; }
   .sj.site main .stats { grid-auto-flow: row; grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .sj.site main .stats > .stat:nth-child(odd) { border-inline-start: 0; padding-inline-start: 0; }
   .sj.site main .stats > .stat:nth-child(n+3) { border-top: var(--rule-hair); }

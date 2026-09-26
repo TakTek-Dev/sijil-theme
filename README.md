@@ -51,7 +51,8 @@ Motion explains what changed or where a layer came from; nothing moves for decor
 Deliberately **not** animated: count-up numbers, parallax, image zoom on hover, a moving news ticker, staggered list reveals, chart line drawing.
 
 - Breakpoints: **≥1024** desktop · **768–1023** tablet · **<768** phone. Home uses the canvas's dedicated tablet and phone designs; the data centre and archive use the phone design below 768 and 1024. Every other page is one responsive body.
-- RTL throughout, logical properties, square corners (radius 0; 2px on controls only), no shadows except floating layers.
+- RTL throughout, logical properties. Corners follow the logo — soft turns, cut ends: 6px on surfaces and images, 4px on controls, 0 on data terminals (bars, rules, figures). Depth comes from three surfaces (page → section band → raised block), not shadows; shadows are for floating layers only.
+- Home rhythm: field monitor (headline written from the data) → latest → periodic reports led by the current issue → publications → dossiers → footer closing on Sijil's vision. Each section head carries its register line (latest record number, date, kind) instead of decorative numbering.
 - Fonts: Noto Kufi Arabic (headings, UI, numbers), Noto Naskh Arabic (reading), DM Mono (record numbers).
 
 Generated from the design canvas source (`design-canvas/build/site.py`); edit there and rebuild rather than editing these files by hand.
