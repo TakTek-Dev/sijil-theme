@@ -1,0 +1,158 @@
+/* Sijil prototype — the real-screen layer over sijil.css (the design system shared with the canvas).
+   The canvas draws fixed artboards; this file lets the same markup live on any screen.
+   1 page · 2 breakpoints · 3 header · 4 overlays · 5 maps · 6 responsive bodies · 7 states */
+
+/* ---------- 1. Page ---------- */
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: #F6F3EC; }
+.sj.site { overflow: clip; min-height: 100vh; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+.sj.site [id] { scroll-margin-top: 104px; }
+html.is-locked, html.is-locked body { overflow: hidden; }
+
+/* ---------- 2. Breakpoints: d ≥1024 · t 768–1023 · m <768 ---------- */
+.bp-t, .bp-m, .bp-tm { display: none; }
+@media (max-width: 1023.98px) { .bp-d { display: none !important; } .bp-tm { display: block; } }
+@media (min-width: 768px) and (max-width: 1023.98px) { .bp-t { display: block; } }
+@media (max-width: 767.98px) { .bp-m { display: block; } .bp-dt { display: none !important; } }
+
+/* dedicated tablet bodies keep the canvas tablet tokens; responsive bodies step down the same way */
+.tablet { --margin: 40px; --gutter: 20px; --fs-h1: 36px; --fs-h2: 28px; --fs-num-xl: 72px; }
+@media (max-width: 1279.98px) { .sj.site { --margin: 40px; } }
+@media (max-width: 1023.98px) { .sj.site { --margin: 40px; --gutter: 20px; --fs-h1: 36px; --fs-h2: 28px; --fs-num-xl: 72px; } }
+@media (max-width: 767.98px) {
+  .sj.site {
+    --fs-display: 36px; --lh-display: 1.32; --fs-h1: 29px; --lh-h1: 1.42; --fs-h2: 23px; --lh-h2: 1.45;
+    --fs-h3: 19px; --lh-h3: 1.55; --fs-h4: 17px; --lh-h4: 1.6; --fs-lead: 19px; --lh-lead: 1.85;
+    --fs-body: 19px; --lh-body: 1.95; --fs-excerpt: 16px; --fs-num-xl: 56px; --fs-num-l: 38px; --fs-num-m: 26px;
+    --margin: 20px; --gutter: 16px;
+  }
+}
+
+/* ---------- 3. Header ---------- */
+.site-head { position: sticky; top: 0; z-index: var(--z-sticky); }
+.site-head .mega { position: absolute; inset-inline: 0; top: 100%; }
+.mega[hidden] { display: none; }
+.nav__a[aria-expanded="true"] { color: var(--navy-800); }
+.nav__a[aria-expanded="true"]::after { transform: scaleX(1); }
+.nav__a .ic { transition: transform var(--dur-2) var(--ease-out); }
+.nav__a[aria-expanded="true"] .ic { transform: rotate(180deg); }
+@media (max-width: 1365.98px) { .masthead__bar .brand__desc { display: none; } .masthead__bar { gap: 28px; } }
+@media (max-width: 1199.98px) {
+  .masthead__bar .search-btn { min-width: 44px; width: 44px; padding: 0; justify-content: center; }
+  .masthead__bar .search-btn span { display: none; }
+  .nav__a { padding-inline: 10px; font-size: 14.5px; }
+}
+@media (max-width: 1279.98px) { .monbar__item:nth-child(4) { display: none; } }
+
+/* ---------- 4. Overlays: menu, filter sheet, toast ---------- */
+.drawer { position: fixed; inset: 0; z-index: var(--z-modal); background: var(--bg); display: flex; flex-direction: column; overflow-y: auto; overscroll-behavior: contain; }
+.drawer[hidden] { display: none; }
+.drawer__head { position: sticky; top: 0; z-index: 1; background: var(--bg); display: flex; align-items: center; justify-content: space-between; min-height: 64px; padding-inline: var(--margin); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.drawer__nav { padding: 8px var(--margin) 0; display: flex; flex-direction: column; flex: 1 0 auto; }
+.drawer__nav > div:last-child { margin-top: auto; }
+
+.sheet { position: fixed; inset-inline: 0; bottom: 0; max-height: 88vh; z-index: var(--z-sheet); }
+.sheet[hidden], .sheet-backdrop[hidden] { display: none !important; }
+.sheet > div[style*="flex:1"] { overflow-y: auto !important; }
+.sheet-backdrop { position: fixed; inset: 0; z-index: var(--z-backdrop); background: rgba(8, 26, 49, .55); }
+
+.toast-host { position: fixed; inset-inline: 16px; bottom: 24px; z-index: var(--z-toast); display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none; }
+.toast-host .toast { pointer-events: auto; max-width: 440px; transition: opacity var(--dur-3) var(--ease-out), transform var(--dur-3) var(--ease-out); }
+.toast-host .toast.is-out { opacity: 0; transform: translateY(8px); }
+.nl-done { margin-top: 14px; font: 600 14px/1.7 var(--font-kufi); color: var(--success); }
+.inv .nl-done { color: #9FD4B4; }
+
+/* ---------- 5. Maps: fixed-size widgets scale with their column (sijil.js) ---------- */
+.fit { position: relative; width: min(100%, var(--fw)); }
+.fit[data-grow] { width: 100%; }
+.fit > .map { transform-origin: top right; }
+[style*="width:620px"]:not(.map) { width: auto !important; max-width: 100%; }
+
+/* ---------- 6. Responsive bodies (desktop markup on smaller screens) ----------
+   The generator writes layout inline; these rules re-flow it by the inline value they target. */
+@media (max-width: 1023.98px) {
+  .sj.site main .grid-12 { display: flex; flex-direction: column; row-gap: 32px; }
+  .sj.site main .grid-12 > * { width: 100%; }
+  .sj.site main .grid-12 > [style*="border-inline-start"] { border-inline-start: 0 !important; padding-inline-start: 0 !important; }
+  .sj.site main .grid-12 > [style*="margin-top:-"] { margin-top: 0 !important; }
+  .sj.site main h1 { font-size: clamp(32px, 4.6vw, 44px) !important; line-height: 1.34 !important; }
+  .sj.site main [style*="grid-template-columns:repeat(4,minmax(0,1fr))"] { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; row-gap: 28px !important; }
+  /* rows of tabs scroll sideways instead of spilling */
+  .sj.site main .tabs { overflow-x: auto; scrollbar-width: none; flex-wrap: nowrap; }
+  .sj.site main .tabs::-webkit-scrollbar { display: none; }
+  .sj.site main .tabs > * { flex-shrink: 0; }
+  .sj.site .toc { display: none; }
+}
+@media (max-width: 767.98px) {
+  .sj.site main h1 { font-size: clamp(27px, 7.6vw, 31px) !important; line-height: 1.42 !important; }
+  /* a week of days scrolls sideways */
+  .sj.site main [style*="grid-template-columns:repeat(9,minmax(0,1fr))"] { grid-template-columns: repeat(9, 68px) !important; overflow-x: auto; scrollbar-width: none; }
+  .sj.site main .row { flex-wrap: wrap; row-gap: 10px; }
+  .sj.site main .delta { white-space: normal; }
+  .sj.site main .sec-head { flex-wrap: wrap; row-gap: 8px; }
+  .sj.site main .sec-head > div:last-child { padding-top: 0 !important; }
+  /* content grids become one column */
+  .sj.site main [style*="grid-template-columns:1fr 1fr"],
+  .sj.site main [style*="grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)"],
+  .sj.site main [style*="grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)"],
+  .sj.site main [style*="grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)"],
+  .sj.site main [style*="grid-template-columns:repeat(2,minmax(0,1fr))"],
+  .sj.site main [style*="grid-template-columns:repeat(3,minmax(0,1fr))"],
+  .sj.site main [style*="grid-template-columns:repeat(4,minmax(0,1fr))"],
+  .sj.site main [style*="grid-template-columns:27fr 19fr 24fr"],
+  .sj.site main [style*="grid-template-columns:150px minmax(0,1fr);"],
+  .sj.site main [style$="grid-template-columns:150px minmax(0,1fr)"] { grid-template-columns: minmax(0, 1fr) !important; row-gap: 24px !important; }
+  .sj.site main [style*="grid-template-columns:repeat(3,minmax(0,1fr)) auto"] { grid-template-columns: minmax(0, 1fr) !important; row-gap: 20px !important; }
+  .sj.site main [style*="grid-template-columns:repeat(3,minmax(0,1fr)) auto"] > * { border-inline-start: 0 !important; padding-inline-start: 0 !important; }
+  /* issue covers keep their count-sized widths when stacked: same height, width follows the count */
+  .sj.site main [style*="grid-template-columns:27fr 19fr 24fr"] .tiled { width: auto !important; height: 124px; max-width: 100%; }
+  /* key figures: two by two */
+  .sj.site main .stats { grid-auto-flow: row; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sj.site main .stats > .stat:nth-child(odd) { border-inline-start: 0; padding-inline-start: 0; }
+  .sj.site main .stats > .stat:nth-child(n+3) { border-top: var(--rule-hair); }
+  /* label · text rows: the long text drops under its label */
+  .sj.site main [style*="grid-template-columns:28px 220px minmax(0,1fr)"] { grid-template-columns: 22px minmax(0, 1fr) !important; row-gap: 4px !important; }
+  .sj.site main [style*="grid-template-columns:28px 220px minmax(0,1fr)"] > :nth-child(3) { grid-column: 2; }
+  .sj.site main [style*="grid-template-columns:120px 24px minmax(0,1fr)"] { grid-template-columns: 76px 14px minmax(0, 1fr) !important; column-gap: 12px !important; }
+  .sj.site main [style*="grid-template-columns:150px minmax(0,1fr) 64px"] { grid-template-columns: 104px minmax(0, 1fr) 52px !important; }
+  .sj.site main a[style*="grid-template-columns:150px minmax(0,1fr) 72px 84px"] { grid-template-columns: minmax(0, 1fr) 60px 72px !important; row-gap: 4px !important; }
+  .sj.site main a[style*="grid-template-columns:150px minmax(0,1fr) 72px 84px"] > :nth-child(2) { grid-column: 1 / -1; grid-row: 2; }
+  .sj.site main [style*="grid-template-columns:44px minmax(0,220px) minmax(0,1fr) 150px"] { grid-template-columns: 30px minmax(0, 1fr) !important; }
+  .sj.site main [style*="grid-template-columns:44px minmax(0,220px) minmax(0,1fr) 150px"] > :nth-child(n+3) { grid-column: 2; text-align: start !important; }
+
+  /* the home feed row (type column + title + cover) */
+  .sj.site main .entry:not(:has(> .entry__rec)):not(:has(> .entry__top)) { grid-template-columns: minmax(0, 1fr) 96px !important; row-gap: 6px; }
+  .sj.site main .entry:not(:has(> .entry__rec)):not(:has(> .entry__top)) > .entry__type { grid-column: 1 / -1; flex-direction: row; flex-wrap: wrap; align-items: baseline; gap: 6px 12px !important; }
+}
+
+/* The register entry below the full desktop width: type on top, the title under it, date · record last, the cover beside */
+@media (max-width: 1365.98px) {
+  .sj.site main .entry:has(> .entry__rec) { grid-template-columns: auto minmax(0, 1fr) 132px !important; column-gap: 12px; row-gap: 6px; padding-block: 16px; }
+  .sj.site main .entry:has(> .entry__rec):is(.entry--nothumb, :has(> div[aria-hidden="true"]:last-child)) { grid-template-columns: auto minmax(0, 1fr) !important; }
+  .sj.site main .entry:has(> .entry__rec) > div[aria-hidden="true"]:last-child { display: none; }
+  .sj.site main .entry:has(> .entry__rec) > .entry__type { grid-row: 1; grid-column: 1 / 3; flex-direction: row; align-items: baseline; gap: 6px; padding: 0; }
+  .sj.site main .entry:has(> .entry__rec) > .entry__type .tag__sub { padding-inline-start: 0; }
+  .sj.site main .entry:has(> .entry__rec) > div:nth-child(4) { grid-row: 2; grid-column: 1 / 3; }
+  .sj.site main .entry:has(> .entry__rec) > .entry__date { grid-row: 3; grid-column: 1; padding: 0; font-weight: 500; font-size: 12.5px; color: var(--text-subtle); }
+  .sj.site main .entry:has(> .entry__rec) > .entry__rec { grid-row: 3; grid-column: 2; padding: 0; }
+  .sj.site main .entry:has(> .entry__rec) > :nth-child(5) { grid-row: 1 / 4; grid-column: 3; align-self: start; }
+  .sj.site main .entry:has(> .entry__rec) .entry__title { font-size: 16.5px; line-height: 1.6; }
+  .sj.site main .entry:has(> .entry__rec) .entry__ex { display: none; }
+}
+@media (max-width: 767.98px) {
+  .sj.site main .entry:has(> .entry__rec) { grid-template-columns: auto minmax(0, 1fr) 96px !important; }
+  .sj.site main .entry:has(> .entry__rec) .entry__title { font-size: 16.5px; line-height: 1.6; }
+}
+/* 1024–1279: desktop compositions with narrower columns */
+@media (max-width: 1279.98px) {
+  .sj.site main [style*="grid-template-columns:minmax(0,1fr) 176px"] { grid-template-columns: minmax(0, 1fr) 120px !important; }
+  .sj.site main section[aria-labelledby="dc-title"] .grid-12,
+  .sj.site main section[aria-labelledby="led-title"] .grid-12 { display: flex; flex-direction: column; row-gap: 36px; }
+  .sj.site main section[aria-labelledby="dc-title"] .grid-12 > *,
+  .sj.site main section[aria-labelledby="led-title"] .grid-12 > * { width: 100%; }
+  .sj.site main section[aria-labelledby="dc-title"] .fit { margin-inline: auto !important; }
+}
+
+/* ---------- 7. States ---------- */
+.chip[aria-pressed="true"] { background: var(--navy-800); border-color: var(--navy-800); color: var(--paper-100); }
