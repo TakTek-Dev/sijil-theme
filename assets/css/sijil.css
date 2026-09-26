@@ -120,9 +120,11 @@
   --shadow-sticky: 0 1px 0 var(--border);
 
   /* ---------- Motion ---------- */
-  --dur-1: 120ms; --dur-2: 200ms; --dur-3: 320ms;
-  --ease-out: cubic-bezier(.2, .7, .2, 1);
-  --ease-in-out: cubic-bezier(.6, 0, .3, 1);
+  --dur-1: 120ms; --dur-2: 200ms; --dur-3: 320ms; --dur-4: 480ms;
+  --dur-press: 160ms;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);        /* entering, exiting, UI response */
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);    /* things moving or morphing on screen */
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);     /* sheets and drawers */
 
   /* ---------- Z-index ---------- */
   --z-base: 0; --z-sticky: 100; --z-dropdown: 200; --z-backdrop: 300; --z-sheet: 310; --z-modal: 400; --z-toast: 500; --z-skip: 600;
@@ -693,7 +695,8 @@
    Motion preferences
    ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
-  .sj *, .sj *::before, .sj *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+  .sj *, .sj *::before, .sj *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
+  .sj .mbar__f, .sj .mon-govrow__bar i, .sj .mpin__c, .sj .mpin__l, .sj .vb__b, .sj .vb__v, .sj .nav__a::after, .sj .link-arrow .ic { transition-duration: 0ms !important; }
 }
 
 /* ==========================================================================
@@ -774,7 +777,8 @@
 .mon-govrow { display: grid; grid-template-columns: 10px 104px minmax(0, 1fr) 40px 38px; align-items: center; gap: 10px; padding-block: 5px; font: 600 14px/1.4 var(--font-kufi); color: var(--ink-900); }
 .mon-govrow > i { width: 10px; height: 10px; background: var(--c); }
 .mon-govrow__bar { height: 8px; background: var(--paper-200); }
-.mon-govrow__bar i { display: block; height: 100%; background: var(--c); }
+.mon-govrow__bar i { display: block; width: 100%; height: 100%; background: var(--c); transform-origin: right; transition: transform var(--dur-3) var(--ease-in-out); }
+.mon-govrow b, .mon-govrow small { transition: opacity var(--dur-2) var(--ease-out); }
 .mon-govrow b { font: 800 15px/1 var(--font-kufi); color: var(--navy-800); text-align: end; font-variant-numeric: tabular-nums; }
 .mon-govrow small { font: 500 12px/1 var(--font-kufi); color: var(--text-subtle); text-align: end; font-variant-numeric: tabular-nums; }
 .mon-map { border: 1px solid var(--border); }
@@ -795,8 +799,9 @@
 .mon-legend__scale span:last-of-type { grid-column: 3 / 5; text-align: end; }
 .mon-legend__occ { display: flex; align-items: center; gap: 8px; }
 .mon-legend__occ i { width: 18px; height: 10px; border: 1px solid #C9BEA7; background: repeating-linear-gradient(135deg, #C9BEA7 0 2px, transparent 2px 5px); }
-.mon-out { position: absolute; inset-block-start: 14px; inset-inline-end: 14px; display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 8px; align-items: baseline; max-width: 250px; background: rgba(252, 251, 248, .96); border: 1px solid var(--border); padding: 8px 12px; font: 600 12.5px/1.5 var(--font-kufi); color: var(--ink-900); }
+.mon-out { position: absolute; inset-block-start: 14px; inset-inline-start: 14px; display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 8px; align-items: baseline; max-width: 250px; background: rgba(252, 251, 248, .96); border: 1px solid var(--border); padding: 8px 12px; font: 600 12.5px/1.5 var(--font-kufi); color: var(--ink-900); }
 .mon-out b { color: var(--navy-800); font-weight: 800; }
+.mon-out[hidden] { display: none; }
 .mon-out small { grid-column: 2; font-weight: 400; font-size: 11.5px; color: var(--text-subtle); }
 .mon-strip { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 24px; padding-top: 12px; font: 500 12.5px/1.6 var(--font-kufi); color: var(--text-subtle); }
 .mon-strip b { color: var(--ink-900); font-weight: 700; }
@@ -837,3 +842,60 @@
 /* Map symbols: proportional circles (area reads truer than squares); the square stays a small type marker only */
 .pin__sq { border-radius: 50%; }
 .recency i { border-radius: 0; }
+
+
+/* ==========================================================================
+   Morphing data components (monitor, data centre)
+   ========================================================================== */
+/* Ranked bars: rows keep their identity (data-type), fills scale from the start edge */
+.mon-types { display: flex; flex-direction: column; gap: 9px; }
+.mbar { display: grid; grid-template-columns: 96px minmax(0, 1fr) 40px; align-items: center; gap: 12px; font: 500 13.5px/1.4 var(--font-kufi); color: var(--ink-800); }
+.mbar__t { height: 12px; background: var(--paper-200); overflow: hidden; }
+.mbar__f { display: block; width: 100%; height: 100%; background: var(--navy-800); transform-origin: right; transition: transform var(--dur-3) var(--ease-in-out); }
+.mbar__v { font: 700 13.5px/1 var(--font-kufi); text-align: end; font-variant-numeric: tabular-nums; color: var(--ink-900); }
+.mon-sub--types { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.mon-sel { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding-inline: 10px 8px; border: 1px solid var(--navy-800); background: var(--navy-800); color: var(--paper-100); font: 600 12.5px/1 var(--font-kufi); border-radius: var(--r-1); }
+.mon-sel[hidden] { display: none; }
+.mon-hint { font: 400 12.5px/1.6 var(--font-kufi); color: var(--text-subtle); margin-top: 2px; }
+
+/* Map symbols: anchored on the point; the circle scales from one base size, the label rides beside it */
+.mpin { position: absolute; width: 0; height: 0; padding: 0; border: 0; background: none; cursor: pointer; z-index: 2; }
+.mpin__c { position: absolute; left: 0; top: 0; display: block; border-radius: 50%; background: var(--pc); outline: 2px solid var(--paper-50); transition: transform var(--dur-3) var(--ease-in-out), opacity var(--dur-2) var(--ease-out); }
+.mpin__l { position: absolute; top: 0; white-space: nowrap; display: flex; align-items: center; gap: 8px; padding: 7px 9px; font: 600 12.5px/1 var(--font-kufi); background: rgba(252, 251, 248, .96); color: var(--ink-900); border: 1px solid var(--border); transition: transform var(--dur-3) var(--ease-in-out), opacity var(--dur-2) var(--ease-out); pointer-events: none; }
+.mpin__l[data-side="end"] { right: 0; }
+.mpin__l[data-side="start"] { left: 0; }
+.mpin__l b { color: var(--navy-800); font-weight: 800; font-variant-numeric: tabular-nums; }
+.mpin:focus-visible { outline: none; }
+.mpin:focus-visible .mpin__c { outline: 3px solid var(--focus); outline-offset: 2px; }
+.mpin[data-empty] { pointer-events: none; }
+.mpin[data-empty] .mpin__l { opacity: 0; }
+
+/* Exploring: the focused governorate stays, the rest step back */
+[data-focus] .mon-gov, [data-focus] .mpin, [data-focus] .mon-govrow { transition: opacity var(--dur-2) var(--ease-out); }
+[data-focus="q"] .mon-gov:not([data-gov="q"]), [data-focus="d"] .mon-gov:not([data-gov="d"]), [data-focus="r"] .mon-gov:not([data-gov="r"]) { opacity: .35; }
+[data-focus="q"] .mpin:not([data-gov="q"]), [data-focus="d"] .mpin:not([data-gov="d"]), [data-focus="r"] .mpin:not([data-gov="r"]) { opacity: .45; }
+[data-focus="q"] .mon-govrow:not([data-gov="q"]), [data-focus="d"] .mon-govrow:not([data-gov="d"]), [data-focus="r"] .mon-govrow:not([data-gov="r"]), [data-focus] .mon-govrow[data-gov="o"] { opacity: .45; }
+[data-focus] .mon-gov[data-gov] { stroke-width: 1.2; }
+[data-focus="q"] .mon-gov[data-gov="q"], [data-focus="d"] .mon-gov[data-gov="d"], [data-focus="r"] .mon-gov[data-gov="r"] { stroke-width: 2.4; stroke-opacity: .9; }
+.mon-govrow { cursor: default; }
+.mon-govrow[data-gov]:not([data-gov="o"]) { cursor: pointer; }
+
+/* Tooltip for a governorate — lives outside the scaled map so its text keeps its size */
+.mtip { position: absolute; z-index: 5; min-width: 200px; max-width: 260px; padding: 12px 14px 12px; background: var(--surface); border: 1px solid var(--border); border-top: 3px solid var(--navy-800); box-shadow: var(--shadow-overlay); pointer-events: none; transform-origin: 50% 100%; transition: opacity 125ms var(--ease-out), transform 125ms var(--ease-out); }
+.mtip[data-state="closed"] { opacity: 0; transform: translateY(4px) scale(.97); }
+.mtip__h { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; font: 700 14px/1.4 var(--font-kufi); color: var(--ink-900); }
+.mtip__h b { font: 800 22px/1 var(--font-kufi); color: var(--navy-800); font-variant-numeric: tabular-nums; }
+.mtip__s { font: 500 12px/1.5 var(--font-kufi); color: var(--text-subtle); margin-top: 2px; }
+.mtip ul { margin-top: 8px; border-top: 1px solid var(--border); padding-top: 6px; }
+.mtip li { display: flex; justify-content: space-between; gap: 12px; padding: 3px 0; font: 500 12.5px/1.5 var(--font-kufi); color: var(--ink-800); }
+.mtip li b { font-weight: 700; font-variant-numeric: tabular-nums; }
+.mtip__n { margin-top: 8px; font: 400 11.5px/1.6 var(--font-kufi); color: var(--text-subtle); }
+
+/* Bars that morph between series of the same length (data centre weekly / monthly) */
+.bars__b { transform-origin: bottom; }
+.bars__v { transition: opacity var(--dur-2) var(--ease-out); }
+
+/* Collapsible groups (menu group, topic lists): grid rows animate, content stays in the flow */
+.collapse { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows 240ms var(--ease-out), opacity var(--dur-2) var(--ease-out); }
+.collapse[data-open="true"] { grid-template-rows: 1fr; opacity: 1; }
+.collapse > .collapse__in { min-height: 0; overflow: hidden; }

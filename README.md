@@ -33,6 +33,23 @@ assets/js/sijil.js     menu, mega menu, filter sheet, toggles, map scaling, copy
 assets/img/            photos (.webp), logos and maps (.svg)
 ```
 
+## Motion & interaction
+
+Motion explains what changed or where a layer came from; nothing moves for decoration. Tokens live in `sijil.css` (`--ease-out`, `--ease-in-out`, `--ease-drawer`, `--dur-press` … `--dur-4`), only `transform` and `opacity` animate, and `prefers-reduced-motion` keeps the fades and drops all movement.
+
+| Where | What happens | Why |
+|---|---|---|
+| Home monitor · period switch (الأسبوع الأخير / أغسطس 2026) | One view morphs: bars resize, type rows re-rank in place, map circles re-scale, the intensity layer re-shades, numbers swap with a short fade, the trend chart cross-fades | the data changes; the reader sees *how* it changed |
+| Home monitor · map | Hover, focus or tap a governorate: a tooltip with its count, share and top types; the rest steps back. Click (latest week): the type split becomes that governorate's, from the brief's type × governorate table | explore by place, with real numbers |
+| Data centre | Weekly ↔ monthly chart (same 9 bars, heights morph); map tooltips; the report builder recounts as filters change (real cross-tab of brief 16849) | feedback on every choice |
+| Tag page · search | Tabs and type facets filter the list in place | no reload for a filter |
+| Overlays | Mega menu drops from the header (180ms); menu drawer slides from its button's side (400ms, drawer curve); filter sheet rises (480ms); toasts enter and leave by the bottom edge | spatial continuity |
+| Controls | Press feedback (scale 0.97, 160ms); segmented controls slide their active state (250ms); one tab indicator slides between tabs; groups expand in place | state is legible |
+| Reading | Page-to-page cross-fade with a fixed header (View Transitions); a reading bar on articles and reports; images fade in as they arrive | calm continuity |
+| First view (once per session, landing pages) | The ledger rule draws from the start edge and the three strokes of السين rise; the monitor lays its circles and bars down | the brand signature, spent once |
+
+Deliberately **not** animated: count-up numbers, parallax, image zoom on hover, a moving news ticker, staggered list reveals, chart line drawing.
+
 - Breakpoints: **≥1024** desktop · **768–1023** tablet · **<768** phone. Home uses the canvas's dedicated tablet and phone designs; the data centre and archive use the phone design below 768 and 1024. Every other page is one responsive body.
 - RTL throughout, logical properties, square corners (radius 0; 2px on controls only), no shadows except floating layers.
 - Fonts: Noto Kufi Arabic (headings, UI, numbers), Noto Naskh Arabic (reading), DM Mono (record numbers).

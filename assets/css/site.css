@@ -154,3 +154,115 @@ html.is-locked, html.is-locked body { overflow: hidden; }
 
 /* ---------- 7. States ---------- */
 .chip[aria-pressed="true"] { background: var(--navy-800); border-color: var(--navy-800); color: var(--paper-100); }
+
+/* ==========================================================================
+   8. Motion & interaction layer
+   Tokens come from sijil.css. Transform and opacity only; reduced motion keeps fades, drops movement.
+   ========================================================================== */
+
+/* 8.1 Page to page: a quiet cross-fade, the header stays put */
+@view-transition { navigation: auto; }
+::view-transition-old(root) { animation: 140ms var(--ease-out) both sj-vt-out; }
+::view-transition-new(root) { animation: 220ms var(--ease-out) both sj-vt-in; }
+@keyframes sj-vt-out { to { opacity: 0; } }
+@keyframes sj-vt-in { from { opacity: 0; } }
+header.site-head { view-transition-name: sj-head; }
+@media (prefers-reduced-motion: reduce) { @view-transition { navigation: none; } }
+
+/* 8.2 Press feedback on everything pressable */
+.sj .btn, .sj .chip, .sj .icon-btn, .sj .seg > button, .sj .share a, .sj .share button, .sj .pager a, .sj .mon-sel {
+  transition-property: background, color, border-color, transform;
+  transition-duration: var(--dur-1), var(--dur-1), var(--dur-1), var(--dur-press);
+  transition-timing-function: var(--ease-out);
+}
+.sj .btn:active, .sj .chip:active, .sj .icon-btn:active, .sj .seg > button:active, .sj .share a:active, .sj .share button:active, .sj .pager a:active, .sj .mon-sel:active { transform: scale(0.97); }
+@media (prefers-reduced-motion: reduce) {
+  .sj .btn:active, .sj .chip:active, .sj .icon-btn:active, .sj .seg > button:active, .sj .share a:active, .sj .share button:active, .sj .pager a:active, .sj .mon-sel:active { transform: none; }
+}
+
+/* 8.3 Segmented control: the active look is a clipped copy that slides to the choice */
+.seg.seg--thumb { position: relative; }
+.seg--thumb > button.is-on { background: transparent; color: var(--navy-800); }
+.seg__copy { position: absolute; inset: 0; display: flex; pointer-events: none; transition: clip-path 250ms var(--ease-in-out); }
+.seg__copy > button { background: var(--navy-800); color: var(--paper-100); }
+.seg__copy > button:first-child { border-inline-start: 0; }
+
+/* 8.4 Tabs: one indicator slides between tabs */
+.tabs.tabs--ind { position: relative; }
+.tabs--ind > .is-on::after { opacity: 0; }
+.tabs__ind { position: absolute; left: 0; bottom: -1px; width: 100px; height: 3px; background: var(--navy-800); transform-origin: 0 0; pointer-events: none; transition: transform 250ms var(--ease-in-out); }
+
+/* 8.5 Mega menu: drops from the header */
+.site-head .mega { transition: opacity 180ms var(--ease-out), transform 180ms var(--ease-out), display 180ms allow-discrete; }
+.site-head .mega[hidden] { display: none; opacity: 0; transform: translateY(-6px); }
+@starting-style { .site-head .mega:not([hidden]) { opacity: 0; transform: translateY(-6px); } }
+
+/* 8.6 Menu drawer: slides in from the side of its button (left in RTL) and leaves the same way */
+.drawer { transition: transform 400ms var(--ease-drawer), opacity 200ms var(--ease-out), display 400ms allow-discrete; }
+.drawer[hidden] { display: none; transform: translateX(-100%); transition-duration: 300ms, 200ms, 300ms; }
+@starting-style { .drawer:not([hidden]) { transform: translateX(-100%); } }
+@media (prefers-reduced-motion: reduce) {
+  .drawer, .drawer[hidden] { transform: none; }
+  @starting-style { .drawer:not([hidden]) { transform: none; opacity: 0; } }
+  .drawer[hidden] { opacity: 0; }
+}
+
+/* 8.7 Filter sheet: rises from the bottom edge over a fading backdrop */
+.sheet { transition: transform 480ms var(--ease-drawer), display 480ms allow-discrete; }
+.sheet[hidden] { display: none !important; transform: translateY(100%); transition-duration: 320ms, 320ms; }
+@starting-style { .sheet:not([hidden]) { transform: translateY(100%); } }
+.sheet-backdrop { transition: opacity 250ms var(--ease-out), display 250ms allow-discrete; }
+.sheet-backdrop[hidden] { display: none !important; opacity: 0; }
+@starting-style { .sheet-backdrop:not([hidden]) { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .sheet, .sheet[hidden] { transform: none; }
+  @starting-style { .sheet:not([hidden]) { transform: none; } }
+}
+
+/* 8.8 Toast: in and out through the bottom edge */
+.toast-host .toast { transition: opacity 400ms ease, transform 400ms ease; }
+@starting-style { .toast-host .toast { opacity: 0; transform: translateY(100%); } }
+.toast-host .toast.is-out { opacity: 0; transform: translateY(100%); }
+@media (prefers-reduced-motion: reduce) {
+  @starting-style { .toast-host .toast { transform: none; } }
+  .toast-host .toast.is-out { transform: none; }
+}
+
+/* 8.9 Collapsible groups: the icon turns with its group */
+[data-collapse-toggle] .ic { transition: transform var(--dur-2) var(--ease-out); }
+[data-collapse-toggle][aria-expanded="true"] .ic { transform: rotate(45deg); }
+
+/* 8.10 Images fade in as they arrive */
+.sj.site img { transition: opacity 320ms var(--ease-out), filter var(--dur-2) var(--ease-out); }
+.sj.site img.is-pending { opacity: 0; }
+
+/* 8.11 Reading bar on long reads: tracks the page, drawn from the start edge */
+.readbar { position: absolute; inset-inline: 0; bottom: -1px; height: 2px; background: var(--gold-500); transform-origin: right; transform: scaleX(0); pointer-events: none; }
+@supports (animation-timeline: scroll()) {
+  .readbar { animation: sj-read linear both; animation-timeline: scroll(root block); }
+  @keyframes sj-read { to { transform: scaleX(1); } }
+}
+
+/* 8.12 Map explorer on the site: the tooltip lives on the unscaled wrapper */
+.fit { position: relative; }
+.list-empty { padding: 24px 0; font: 500 15px/1.7 var(--font-kufi); color: var(--text-subtle); border-bottom: var(--rule-hair); }
+
+/* 8.13 First view of a landing page (once per session): the ledger rule draws, the strokes of السين rise.
+   Everything is visible without JS, with reduced motion and after the safety timeout (.first-done). */
+html.first-view:not(.first-done) .sj.site[data-page]:is([data-page="index"], [data-page="reports"], [data-page="data"], [data-page="about"]) .sec-head:not(.sec-head--sm) { border-top-color: transparent; position: relative; }
+html.first-view:not(.first-done) .sj.site:is([data-page="index"], [data-page="reports"], [data-page="data"], [data-page="about"]) .sec-head:not(.sec-head--sm)::before {
+  content: ""; position: absolute; inset-inline: 0; top: -4px; height: 4px; background: var(--border-strong);
+  clip-path: inset(0 0 0 100%); transition: clip-path 560ms var(--ease-in-out);
+}
+html.first-view:not(.first-done) .sj.site:is([data-page="index"], [data-page="reports"], [data-page="data"], [data-page="about"]) .sec-head.is-in::before { clip-path: inset(0); }
+html.first-view:not(.first-done) .sj.site:is([data-page="index"], [data-page="reports"], [data-page="data"], [data-page="about"]) .sec-head .seen i {
+  opacity: 0; transform: scaleY(.25); transform-origin: bottom; transition: transform 360ms var(--ease-out), opacity 240ms var(--ease-out);
+}
+html.first-view:not(.first-done) .sj.site .sec-head.is-in .seen i { opacity: 1; transform: none; }
+html.first-view:not(.first-done) .sj.site .sec-head.is-in .seen i:nth-child(1) { transition-delay: 220ms; }
+html.first-view:not(.first-done) .sj.site .sec-head.is-in .seen i:nth-child(2) { transition-delay: 280ms; }
+html.first-view:not(.first-done) .sj.site .sec-head.is-in .seen i:nth-child(3) { transition-delay: 340ms; }
+/* the monitor lays its data down (circles, bars) — hidden only until the script runs */
+html.first-view:not(.first-done) .sj.site[data-page="index"] .mon:not(.mon-in) :is(.mpin, .mbar__f, .mon-govrow__bar i) { opacity: 0; }
+/* filtered-out rows leave the flow (component display rules would otherwise beat [hidden]) */
+.sj .entry[hidden], .sj .list-empty[hidden] { display: none; }
