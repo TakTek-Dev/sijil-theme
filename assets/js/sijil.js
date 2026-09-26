@@ -1,4 +1,4 @@
-/* Sijil prototype — behaviour. Vanilla JS, no dependencies, no build step.
+/* Sijil prototype، behaviour. Vanilla JS, no dependencies, no build step.
    Motion follows the tokens in sijil.css (--ease-out, --ease-in-out, --ease-drawer, --dur-*).
    Rules: transform and opacity only; transitions (not keyframes) for anything a reader can trigger twice;
    reduced motion keeps fades and drops movement.
@@ -251,7 +251,7 @@
         l.style.transform = l.getAttribute('data-side') === 'start' ? 'translate(' + off + 'px,-50%)' : 'translate(' + (-off) + 'px,-50%)';
         swap($('b', l), n);
         pin.toggleAttribute('data-empty', !n);
-        pin.setAttribute('aria-label', monData.govs[g] + ': ' + n + ' انتهاكاً، ' + (p.total ? Math.round(n / p.total * 100) : 0) + '% من المجموع');
+        pin.setAttribute('aria-label', monData.govs[g] + ': ' + n + ' انتهاكا، ' + (p.total ? Math.round(n / p.total * 100) : 0) + '% من المجموع');
       });
     }
 
@@ -263,7 +263,7 @@
         cols += '<div class="bars__col' + (i === c.hi ? ' is-hi' : '') + '"><span class="bars__v">' + v + '</span><span class="bars__b" style="height:' + pct + '%"></span></div>';
         xs += '<span class="' + (i === c.hi ? 'is-hi' : '') + '">' + c.labels[i] + '</span>';
       });
-      var label = c.labels.map(function (l, i) { return l + ': ' + c.values[i]; }).join(' · ');
+      var label = c.labels.map(function (l, i) { return l + ': ' + c.values[i]; }).join('، ');
       return '<div role="img" aria-label="' + label + '"><div class="bars" style="--bh:' + h + 'px;gap:' + gap + 'px">' + cols + '</div><div class="bars__x" style="gap:' + gap + 'px">' + xs + '</div></div>';
     }
     function setChart(c) {
@@ -282,7 +282,7 @@
       var p = monData.periods[state.p];
       swap(k('title'), p.title); swap(k('total'), p.total);
       var dl = k('delta'); swap(dl, p.delta); dl.classList.toggle('delta--down', p.dcls === 'delta--down');
-      swap(k('src-l'), 'المصدر: ' + p.src[0] + ' · قيد'); swap(k('src-n'), p.src[1]);
+      swap(k('src-l'), 'المصدر: ' + p.src[0] + '، قيد'); swap(k('src-n'), p.src[1]);
       swap(k('strip'), p.strip); swap(k('strip2'), p.strip); swap(k('csv'), p.csv); swap(k('chart-t'), 'الانتهاكات ' + p.chart.t);
       var gmx = Math.max(p.govs.q, p.govs.d, p.govs.r, p.govs.o) || 1;
       $$('.mon-govrow', mon).forEach(function (row) {
@@ -432,7 +432,7 @@
           v.animate([{ transform: 'translateY(' + dy + 'px)' }, { transform: 'none' }], { duration: 320, easing: EASE_IN_OUT });
         });
       }
-      var img = $('[role="img"]', box); if (img) img.setAttribute('aria-label', s.labels.map(function (l, i) { return l + ': ' + s.values[i]; }).join(' · '));
+      var img = $('[role="img"]', box); if (img) img.setAttribute('aria-label', s.labels.map(function (l, i) { return l + ': ' + s.values[i]; }).join('، '));
     });
   });
 
@@ -451,7 +451,7 @@
         n += s; if (s) withData += 1;
       });
       var nEl = $('[data-b-n]', sum), gEl = $('[data-b-g]', sum);
-      swap(nEl, n ? plural(n, 'انتهاكاً واحداً', 'انتهاكين', 'انتهاكات', 'انتهاكاً') : 'صفر انتهاكات');
+      swap(nEl, n ? plural(n, 'انتهاكا واحدا', 'انتهاكين', 'انتهاكات', 'انتهاكا') : 'صفر انتهاكات');
       swap(gEl, withData ? plural(withData, 'محافظة واحدة', 'محافظتين', 'محافظات', 'محافظة') : 'أي محافظة');
     }
     panel.addEventListener('sj:check', update);
@@ -507,18 +507,18 @@
   /* 12. Copy: citation text and page link -------------------------------- */
   function copy(text, msg) {
     var done = function () { toast(msg); };
-    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(done, function () { toast('تعذّر النسخ'); });
+    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(done, function () { toast('تعذر النسخ'); });
     else {
       var ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
       document.body.appendChild(ta); ta.select();
-      try { document.execCommand('copy'); done(); } catch (err) { toast('تعذّر النسخ'); }
+      try { document.execCommand('copy'); done(); } catch (err) { toast('تعذر النسخ'); }
       ta.remove();
     }
   }
   $$('.cite button').forEach(function (b) {
-    b.addEventListener('click', function () { var p = $('p', b.closest('.cite')); copy(p ? p.innerText.trim() : location.href, 'نُسخ نص الاستشهاد'); });
+    b.addEventListener('click', function () { var p = $('p', b.closest('.cite')); copy(p ? p.innerText.trim() : location.href, 'نسخ نص الاستشهاد'); });
   });
-  $$('.share__copy').forEach(function (b) { b.addEventListener('click', function () { copy(location.href, 'نُسخ رابط المادة'); }); });
+  $$('.share__copy').forEach(function (b) { b.addEventListener('click', function () { copy(location.href, 'نسخ رابط المادة'); }); });
 
   /* 13. Forms: search goes to the results page; the rest confirm in place */
   $$('form').forEach(function (f) {
@@ -529,13 +529,13 @@
         return;
       }
       var mail = $('input[type="email"]', f);
-      if (mail && !mail.value.trim()) { mail.focus(); toast('اكتب بريدك الإلكتروني أولاً'); return; }
+      if (mail && !mail.value.trim()) { mail.focus(); toast('اكتب بريدك الإلكتروني أولا'); return; }
       if (f.closest('.newsletter')) {
         var ok = document.createElement('p'); ok.className = 'nl-done'; ok.setAttribute('role', 'status');
-        ok.textContent = 'تمّ الاشتراك. تصلك النشرة صباح كل أحد.';
+        ok.textContent = 'تم الاشتراك. تصلك النشرة صباح كل أحد.';
         f.replaceWith(ok); return;
       }
-      toast('وصلت رسالتك. نردّ خلال يومي عمل.');
+      toast('وصلت رسالتك. نرد خلال يومي عمل.');
       f.reset();
     });
   });

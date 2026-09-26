@@ -899,3 +899,7 @@
 .collapse { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows 240ms var(--ease-out), opacity var(--dur-2) var(--ease-out); }
 .collapse[data-open="true"] { grid-template-rows: 1fr; opacity: 1; }
 .collapse > .collapse__in { min-height: 0; overflow: hidden; }
+
+/* A type's subtype sits after a drawn bar, not a typed dot */
+.tag > .tag__sub { display: inline-flex; align-items: center; gap: 8px; }
+.tag > .tag__sub::before { content: ""; width: 1px; height: .9em; background: currentColor; opacity: .45; }
