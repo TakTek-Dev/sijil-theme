@@ -48,7 +48,13 @@ Motion explains what changed or where a layer came from; nothing moves for decor
 | Reading | Page-to-page cross-fade with a fixed header (View Transitions); a reading bar on articles and reports; images fade in as they arrive | calm continuity |
 | First view (once per session, landing pages) | The ledger rule draws from the start edge and the three strokes of السين rise; the monitor lays its circles and bars down | the brand signature, spent once |
 
-Deliberately **not** animated: count-up numbers, parallax, image zoom on hover, a moving news ticker, staggered list reveals, chart line drawing.
+| Inner pages · actions | Share icons open the real share dialogs; «استشهد» and «انسخ» copy the citation; «اطبع» prints a clean document (print stylesheet); CSV buttons save the table or period on the page (UTF-8, opens in Excel); a button that did its job shows a check for a moment | every control does what it says |
+| Archive | Type, date and tag filters apply in place; the active filters become removable chips; months count what they show; sort reverses with the entries sliding to their places (FLIP, 320ms); list or card-grid view; jump to a month; on phones the sheet shows «اعرض N نتائج» and filtering unfolds «حمّل المزيد» | browsing that answers |
+| Periodic reports | Subtype chips filter each issue's parts; «قائمة زمنية» rebuilds everything as one chronological list | two ways into the same archive |
+| Search | Answers as you type from an index of everything Sijil published: highlighted matches, results / briefs / tags tabs with live counts, relevance or newest, suggestions and clear; the address keeps the query | search that works |
+| Field report · contact · tag | Stacked bars explain themselves on hover, focus or tap; the four earlier days open in place; the message counter and per-type help follow the form, which gives way to a confirmation with a follow-up number; following a tag is a state | feedback where a reader acts |
+
+Deliberately **not** animated: count-up numbers, parallax, image zoom on hover, a moving news ticker, staggered list reveals, chart line drawing, search results as you type (they change instantly).
 
 - Breakpoints: **≥1024** desktop · **768–1023** tablet · **<768** phone. Home uses the canvas's dedicated tablet and phone designs; the data centre and archive use the phone design below 768 and 1024. Every other page is one responsive body.
 - RTL throughout, logical properties. Corners follow the logo — soft turns, cut ends: 6px on surfaces and images, 4px on controls, 0 on data terminals (bars, rules, figures). Depth comes from three surfaces (page → section band → raised block), not shadows; shadows are for floating layers only.
