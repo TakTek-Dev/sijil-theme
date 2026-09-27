@@ -543,6 +543,19 @@
         var q = $('input', f); location.href = 'search.html' + (q && q.value ? '?q=' + encodeURIComponent(q.value) : '');
         return;
       }
+      if (f.hasAttribute('data-validate')) {
+        var first = null;
+        $$('[data-req]', f).forEach(function (fld) {
+          var inp = $('input, textarea', fld), ok = fieldOk(inp), err = $('.field__error', fld);
+          inp.classList.toggle('is-error', !ok); inp.setAttribute('aria-invalid', String(!ok));
+          if (err) err.hidden = ok;
+          if (!ok && !first) first = inp;
+        });
+        if (first) { first.focus(); return; }
+        toast('وصلت رسالتك. نرد خلال يومي عمل.');
+        f.reset();
+        return;
+      }
       var mail = $('input[type="email"]', f);
       if (mail && !mail.value.trim()) { mail.focus(); toast('اكتب بريدك الإلكتروني أولا'); return; }
       if (f.closest('.newsletter, .footer__nl')) {
@@ -552,6 +565,19 @@
       }
       toast('وصلت رسالتك. نرد خلال يومي عمل.');
       f.reset();
+    });
+  });
+  function fieldOk(inp) {
+    var v = inp.value.trim();
+    return v.length > 0 && (inp.type !== 'email' || /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v));
+  }
+  // an error clears as soon as the field is right; it is not re-judged while the reader is still typing
+  $$('form[data-validate]').forEach(function (f) {
+    f.addEventListener('input', function (e) {
+      var inp = e.target, fld = inp.closest && inp.closest('[data-req]');
+      if (!fld || !inp.classList.contains('is-error') || !fieldOk(inp)) return;
+      inp.classList.remove('is-error'); inp.setAttribute('aria-invalid', 'false');
+      var err = $('.field__error', fld); if (err) err.hidden = true;
     });
   });
   var q = new URLSearchParams(location.search).get('q');
@@ -656,6 +682,23 @@
       });
     });
   });
+
+  /* 20. Sidebars follow the reader beside a longer column (desktop). A sidebar taller than the window
+     scrolls with the page until its end is in view, then holds, so nothing in it is ever out of reach. */
+  var stickies = $$('.side-sticky');
+  if (stickies.length) {
+    var siteHead = $('.site-head.bp-d');
+    var placeSticky = function () {
+      var top = (siteHead ? siteHead.getBoundingClientRect().height : 0) + 24;
+      stickies.forEach(function (el) {
+        el.style.setProperty('--stick-top', Math.round(Math.min(top, window.innerHeight - el.offsetHeight - 24)) + 'px');
+      });
+    };
+    placeSticky();
+    window.addEventListener('resize', placeSticky);
+    window.addEventListener('load', placeSticky);
+    if ('ResizeObserver' in window) { var stickRO = new ResizeObserver(placeSticky); stickies.forEach(function (el) { stickRO.observe(el); }); }
+  }
 
   /* 18. Toast: enters and leaves by the same edge ------------------------ */
   function toast(msg) {

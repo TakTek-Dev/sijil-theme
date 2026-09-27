@@ -55,6 +55,8 @@ Deliberately **not** animated: count-up numbers, parallax, image zoom on hover, 
 - Home rhythm: field monitor (headline written from the data) → latest → periodic reports as a shelf of monthly issues → publications → dossiers → footer. Each section head carries its register line (latest record number, date, kind) instead of decorative numbering.
 - Markers: the logo's س (three strokes with cut ends) marks content types, colour keys, timeline points and the live dot; there are no square markers. Map symbols are circles.
 - Footer: logo and vision beside the weekly newsletter; five columns (publications, data centre, about, publishing rhythm, contact); the legal line with the latest record.
-- Fonts: Noto Kufi Arabic (headings, UI, numbers), Noto Naskh Arabic (reading), DM Mono (record numbers).
+- Sidebars (article, tag, archive filters, search facets, the X feed) follow the reader on desktop, as the client brief asks; one taller than the window scrolls until its end shows, then holds.
+- Forms: the contact form starts empty and checks name, email and message on send; errors clear as each field is put right.
+- Fonts: Noto Kufi Arabic (headings, UI, numbers), Noto Naskh Arabic (reading), DM Mono (record numbers). Arabic is never set in DM Mono.
 
 Generated from the design canvas source (`design-canvas/build/site.py`); edit there and rebuild rather than editing these files by hand.
