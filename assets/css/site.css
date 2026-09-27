@@ -63,6 +63,14 @@ html.is-locked, html.is-locked body { overflow: hidden; }
 .nl-done { margin-top: 14px; font: 600 14px/1.7 var(--font-kufi); color: var(--success); }
 .inv .nl-done { color: #9FD4B4; }
 
+/* ---------- 4a. Hit areas: small text links get a larger target that moves nothing (padding, equal negative margin) ---------- */
+.sj.site .link-arrow { padding-block: 12px; margin-block: -12px; }
+.sj.site .crumbs a { padding-block: 8px; margin-block: -8px; }
+.sj.site .meta a { padding-block: 6px; margin-block: -6px; }
+.sj.site .monbar__more { padding-block: 12px; margin-block: -12px; }
+.sj.site #feed .row.between > a { padding-block: 10px; margin-block: -10px; }
+.sj.site .dossier__list a { padding-block: 6px; margin-block: -6px; }
+
 /* ---------- 4b. Sidebars follow the reader on desktop (client brief: fixed until the footer). sijil.js sets
    --stick-top: under the header, or, for a sidebar taller than the window, the offset that keeps its end in view. */
 @media (min-width: 1024px) {
@@ -90,10 +98,22 @@ html.is-locked, html.is-locked body { overflow: hidden; }
    The generator writes layout inline; these rules re-flow it by the inline value they target. */
 @media (max-width: 1023.98px) {
   .sj.site main .grid-12 { display: flex; flex-direction: column; row-gap: 32px; }
+  /* month axes on phones and tablets keep a little air between columns */
+  .sj.site main .bars, .sj.site main .bars__x { gap: 6px !important; }
+  /* long filter rows scroll sideways (their far edge fades) instead of stacking or cutting a chip */
+  .sj.site main .chips--scroll { flex: 1 1 100%; min-width: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; mask-image: linear-gradient(to left, transparent 0, #000 28px); }
+  .sj.site main .chips--scroll::-webkit-scrollbar { display: none; }
+  .sj.site main .chips--scroll > * { flex-shrink: 0; }
+  /* search: the type and sort filters come first as compact rows; the numbers note follows the results */
+  .sj.site main .search__facets { display: contents !important; }
+  .sj.site main .search__facets > * { align-self: stretch; }
+  .sj.site main .search__facets > fieldset { order: -1; display: flex; flex-wrap: wrap; align-items: center; gap: 2px 20px; padding-top: 10px !important; }
+  .sj.site main .search__facets > fieldset > legend { float: inline-start; width: auto; padding: 0 !important; margin-inline-end: 8px; }
+  .sj.site main .search__facets > fieldset .check small { margin-inline-start: 6px; }
+  .sj.site main .search__facets > :not(fieldset) { order: 3; }
+  .sj.site .monbar__more { min-width: 44px; min-height: 44px; justify-content: center; }
   /* the footer carries the newsletter; the sidebar copy would sit right above it */
   .sj.site main .newsletter { display: none; }
-  /* results before the refining controls */
-  .sj.site main .search__facets { order: 2; }
   /* a tab row that scrolls shows it: its far edge fades */
   .sj.site main .tabs { mask-image: linear-gradient(to left, transparent 0, #000 28px); }
   .sj.site main .grid-12 > * { width: 100%; }
@@ -111,20 +131,14 @@ html.is-locked, html.is-locked body { overflow: hidden; }
 }
 @media (max-width: 767.98px) {
   .sj.site main h1 { font-size: clamp(27px, 7.6vw, 31px) !important; line-height: 1.42 !important; }
-  /* month axes: nine columns keep their names apart */
-  .sj.site main .bars, .sj.site main .bars__x { gap: 6px !important; }
-  .sj.site main .bars__x span { font-size: 11px; }
-  /* nine month names do not fit side by side on a phone: every other one steps down a line */
-  .sj.site main .bars__x span:nth-child(even) { padding-top: 16px; }
-  /* long filter rows scroll sideways instead of stacking five lines */
-  .sj.site main .chips--scroll { flex: 1 1 100%; min-width: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; mask-image: linear-gradient(to left, transparent 0, #000 28px); }
-  .sj.site main .chips--scroll::-webkit-scrollbar { display: none; }
-  .sj.site main .chips--scroll > * { flex-shrink: 0; }
   /* the field report's trend has its own phone drawing */
   .sj.site .trend--d { display: none; }
   .sj.site .trend--m { display: block; }
   /* a decorative giant س alone on a phone reads as a stray glyph */
   .sj.site main .seen--xl { display: none; }
+  /* footer links: a finger-sized row each */
+  .sj.site .footer--m .footer__col li a { padding-block: 10px; }
+  .sj.site .footer--m .footer__cadence li { padding-block: 8px; }
   /* About: the label sits over its text */
   .sj.site .about-row { grid-template-columns: minmax(0, 1fr); row-gap: 8px; padding-block: 22px 24px; }
   .sj.site .about-row__vision { font-size: 20px; }
