@@ -47,7 +47,6 @@ Motion explains what changed or where a layer came from; nothing moves for decor
 | Controls | Press feedback (scale 0.97, 160ms); segmented controls slide their active state (250ms); one tab indicator slides between tabs; groups expand in place | state is legible |
 | Reading | Page-to-page cross-fade with a fixed header (View Transitions); a reading bar on articles and reports; images fade in as they arrive | calm continuity |
 | First view (once per session, landing pages) | The ledger rule draws from the start edge and the three strokes of السين rise; the monitor lays its circles and bars down | the brand signature, spent once |
-
 | Inner pages · actions | Share icons open the real share dialogs; «استشهد» and «انسخ» copy the citation; «اطبع» prints a clean document (print stylesheet); CSV buttons save the table or period on the page (UTF-8, opens in Excel); a button that did its job shows a check for a moment | every control does what it says |
 | Archive | Type, date and tag filters apply in place; the active filters become removable chips; months count what they show; sort reverses with the entries sliding to their places (FLIP, 320ms); list or card-grid view; jump to a month; on phones the sheet shows «اعرض N نتائج» and filtering unfolds «حمّل المزيد» | browsing that answers |
 | Periodic reports | Subtype chips filter each issue's parts; «قائمة زمنية» rebuilds everything as one chronological list | two ways into the same archive |
