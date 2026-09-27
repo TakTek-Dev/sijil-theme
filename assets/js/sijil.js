@@ -6,7 +6,9 @@
     0 utilities       1 menu            2 mega menu        3 filter sheet     4 escape
     5 controls        6 monitor         7 map explorer     8 chart series     9 report builder
    10 list filters   11 map scaling    12 copy            13 forms           14 contents
-   15 reading bar    16 images         17 first view      18 toast */
+   15 reading bar    16 images         17 first view      18 toast           19 issues shelf
+   20 sticky sidebars 21 page actions  22 archive          23 periodic reports 24 search
+   25 field report and contact */
 (function () {
   'use strict';
 
@@ -197,17 +199,37 @@
     var segBtn = t.closest('.seg > button');
     if (segBtn) { segPick(segBtn); return; }
     var chip = t.closest('button.chip');
-    if (chip) { chip.classList.toggle('is-on'); chip.setAttribute('aria-pressed', chip.classList.contains('is-on')); return; }
+    if (chip && !chip.hasAttribute('data-f-remove')) {
+      var radio = chip.closest('[data-chip-radio]');
+      if (radio) {
+        // one choice; an "optional" group can also be left with none
+        var was = chip.classList.contains('is-on');
+        $$('button.chip', radio).forEach(function (c) { c.classList.remove('is-on'); c.setAttribute('aria-pressed', 'false'); });
+        var now = !(was && radio.getAttribute('data-chip-radio') === 'optional');
+        chip.classList.toggle('is-on', now); chip.setAttribute('aria-pressed', String(now));
+      } else {
+        chip.classList.toggle('is-on'); chip.setAttribute('aria-pressed', chip.classList.contains('is-on'));
+      }
+      chip.dispatchEvent(new CustomEvent('sj:chip', { bubbles: true }));
+      return;
+    }
     var chk = t.closest('label.check');
     if (chk) {
       e.preventDefault();
       chk.classList.remove('is-mixed');
-      var on = chk.classList.toggle('is-on');
-      var box = $('.check__box', chk); if (box) box.innerHTML = on ? CHECK : '';
+      var on;
+      if (chk.classList.contains('radio')) {
+        // a radio row: choosing one clears the others in its group
+        $$('label.check.radio', chk.parentElement).forEach(function (r) { r.classList.remove('is-on'); });
+        chk.classList.add('is-on'); on = true;
+      } else {
+        on = chk.classList.toggle('is-on');
+        var box = $('.check__box', chk); if (box) box.innerHTML = on ? CHECK : '';
+      }
       chk.dispatchEvent(new CustomEvent('sj:check', { bubbles: true, detail: { on: on } }));
       return;
     }
-    var tab = t.closest('.tabs > button, .tabs > a');
+    var tab = t.closest('.tabs > button, .tabs > a:not([target])');
     if (tab) {
       $$(':scope > button, :scope > a', tab.parentElement).forEach(function (b) { b.classList.toggle('is-on', b === tab); if (b.tagName === 'BUTTON') b.setAttribute('aria-selected', String(b === tab)); });
       tabsSync(tab.parentElement, true);
@@ -520,26 +542,47 @@
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitMaps);
 
   /* 12. Copy: citation text and page link -------------------------------- */
-  function copy(text, msg) {
-    var done = function () { toast(msg); };
-    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(done, function () { toast('تعذر النسخ'); });
+  function copy(text, msg, btn, label) {
+    var ok = function () { toast(msg); if (btn) confirmOn(btn, label || 'تم النسخ'); };
+    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(ok, function () { toast('تعذر النسخ'); });
     else {
       var ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
       document.body.appendChild(ta); ta.select();
-      try { document.execCommand('copy'); done(); } catch (err) { toast('تعذر النسخ'); }
+      try { document.execCommand('copy'); ok(); } catch (err) { toast('تعذر النسخ'); }
       ta.remove();
     }
   }
-  $$('.cite button').forEach(function (b) {
-    b.addEventListener('click', function () { var p = $('p', b.closest('.cite')); copy(p ? p.innerText.trim() : location.href, 'نسخ نص الاستشهاد'); });
-  });
-  $$('.share__copy').forEach(function (b) { b.addEventListener('click', function () { copy(location.href, 'نسخ رابط المادة'); }); });
+  // A button that did its job says so for a moment: its icon becomes a check, its label the result.
+  function confirmOn(btn, label) {
+    if (btn.__confirm) return;
+    var span = $(':scope > span', btn), icon = $(':scope > svg', btn);
+    var oldLabel = span ? span.innerHTML : '', oldIcon = icon ? icon.cloneNode(true) : null;
+    var check = null;
+    if (icon) {
+      var wrap = document.createElement('span'); wrap.innerHTML = CHECK;
+      check = wrap.firstChild; check.setAttribute('class', icon.getAttribute('class'));
+      icon.replaceWith(check);
+    }
+    if (span && label) span.textContent = label;
+    btn.classList.add('is-done');
+    if (canAnimate && !reduced()) {
+      if (check) check.animate([{ opacity: 0, transform: 'scale(.6)' }, { opacity: 1, transform: 'none' }], { duration: 200, easing: EASE_OUT });
+      if (span) span.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 160, easing: EASE_OUT });
+    }
+    btn.__confirm = setTimeout(function () {
+      if (check && oldIcon) check.replaceWith(oldIcon);
+      if (span) span.innerHTML = oldLabel;
+      btn.classList.remove('is-done'); btn.__confirm = null;
+    }, 1800);
+  }
+  $$('.share__copy').forEach(function (b) { b.addEventListener('click', function () { copy(location.href, 'تم نسخ رابط المادة', b, 'تم نسخ الرابط'); }); });
 
   /* 13. Forms: search goes to the results page; the rest confirm in place */
   $$('form').forEach(function (f) {
     f.addEventListener('submit', function (e) {
       e.preventDefault();
       if (f.getAttribute('role') === 'search' || f.closest('[role="search"]')) {
+        if (f.hasAttribute('data-live-search')) return;  // it answers as you type (modules 22 and 24)
         var q = $('input', f); location.href = 'search.html' + (q && q.value ? '?q=' + encodeURIComponent(q.value) : '');
         return;
       }
@@ -552,6 +595,8 @@
           if (!ok && !first) first = inp;
         });
         if (first) { first.focus(); return; }
+        var doneBox = f.parentElement && $('[data-form-done]', f.parentElement);
+        if (doneBox) { formDone(f, doneBox); return; }
         toast('وصلت رسالتك. نرد خلال يومي عمل.');
         f.reset();
         return;
@@ -699,6 +744,489 @@
     window.addEventListener('load', placeSticky);
     if ('ResizeObserver' in window) { var stickRO = new ResizeObserver(placeSticky); stickies.forEach(function (el) { stickRO.observe(el); }); }
   }
+
+
+  /* 21. Page actions: share, cite, print, copy a link, CSV, PDF, follow ---- */
+  var TODAY = '2026-09-24';  // the day the prototype's content stops
+  var TYPE_NAMES = { monitor: 'رصد', monthly: 'تقرير شهري', briefing: 'إحاطة', thematic: 'تقرير موضوعي', analysis: 'مقال تحليلي', translation: 'ترجمة' };
+  var pageTitle = (document.title || '').replace(/\s*\|\s*سجل\s*$/, '');
+  var SHARE = {
+    x: function (u, t) { return 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(t) + '&url=' + encodeURIComponent(u); },
+    facebook: function (u) { return 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(u); },
+    telegram: function (u, t) { return 'https://t.me/share/url?url=' + encodeURIComponent(u) + '&text=' + encodeURIComponent(t); },
+    whatsapp: function (u, t) { return 'https://wa.me/?text=' + encodeURIComponent(t + ' ' + u); },
+    mail: function (u, t) { return 'mailto:?subject=' + encodeURIComponent(t) + '&body=' + encodeURIComponent(u); }
+  };
+  $$('[data-share]').forEach(function (a) {
+    var k = a.getAttribute('data-share'); if (!SHARE[k]) return;
+    a.href = SHARE[k](location.href, pageTitle);
+    if (k !== 'mail') { a.target = '_blank'; a.rel = 'noopener'; }
+  });
+
+  function csvCell(c) { c = String(c == null ? '' : c); return /[",\r\n]/.test(c) ? '"' + c.replace(/"/g, '""') + '"' : c; }
+  function saveCsv(name, rows) {
+    // a byte-order mark so spreadsheet apps read the Arabic as UTF-8
+    var text = '﻿' + rows.map(function (r) { return r.map(csvCell).join(','); }).join('\r\n');
+    var url = URL.createObjectURL(new Blob([text], { type: 'text/csv;charset=utf-8' }));
+    var a = document.createElement('a'); a.href = url; a.download = name; a.hidden = true;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+  }
+  function tableRows(table) {
+    return $$('tr', table).map(function (tr) { return $$('th, td', tr).map(function (c) { return c.textContent.trim(); }); });
+  }
+  function periodRows(k) {
+    var p = monData && monData.periods[k]; if (!p) return null;
+    var rows = [['الفترة', p.title], ['المجموع', p.total], [], ['المحافظة', 'عدد الانتهاكات']];
+    Object.keys(monData.govs).forEach(function (g) { if (p.govs[g] != null) rows.push([monData.govs[g], p.govs[g]]); });
+    rows.push([], ['نوع الانتهاك', 'عدد الانتهاكات']);
+    p.types.forEach(function (t) { rows.push([t[0], t[1]]); });
+    rows.push([], ['المصدر', 'مركز سجل للدراسات والتوثيق، sijil-sy.org']);
+    return rows;
+  }
+  function citeText(from) {
+    var box = (from && from.closest('.cite')) || $('main .cite');
+    var p = box && $('p', box);
+    return p ? p.innerText.trim() : location.href;
+  }
+  var PDF_NOTE = 'ملفات PDF تربط عند نشر الموقع، هذا نموذج أولي للواجهة.';
+
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest('[data-act]'); if (!el) return;
+    var act = el.getAttribute('data-act');
+    if (act === 'cite') { e.preventDefault(); copy(citeText(el), 'تم نسخ نص الاستشهاد', el); }
+    else if (act === 'print') { e.preventDefault(); window.print(); }
+    else if (act === 'share') {
+      e.preventDefault();
+      if (navigator.share) navigator.share({ title: pageTitle, url: location.href }).catch(function () {});
+      else copy(location.href, 'تم نسخ رابط المادة', el, 'تم نسخ الرابط');
+    }
+    else if (act === 'copy-link') { e.preventDefault(); copy(el.getAttribute('data-url') || location.href, 'تم نسخ رابط التقرير', el); }
+    else if (act === 'pdf') { e.preventDefault(); toast(PDF_NOTE); }
+    else if (act === 'csv-table') {
+      e.preventDefault();
+      var t = $('table', el.closest('main') || document); if (!t) return;
+      saveCsv(el.getAttribute('data-file') || 'sijil.csv', tableRows(t));
+      confirmOn(el, 'تم التنزيل');
+    }
+    else if (act === 'csv-period') {
+      e.preventDefault();
+      var seg = $('[data-period-switch] > button.is-on'), k = seg ? seg.getAttribute('data-p') : 'week';
+      var rows = periodRows(k); if (!rows) return;
+      saveCsv('sijil-' + k + '.csv', rows);
+      confirmOn(el, 'تم التنزيل');
+    }
+    else if (act === 'follow') {
+      var on = el.getAttribute('aria-pressed') !== 'true';
+      el.setAttribute('aria-pressed', String(on));
+      var h1 = $('main h1'), name = h1 ? h1.textContent.trim() : '';
+      var span = $(':scope > span', el), icon = $(':scope > svg', el);
+      if (!el.__off) el.__off = { label: span ? span.textContent : '', icon: icon ? icon.outerHTML : '' };
+      if (span) span.textContent = on ? 'تتابع هذا الوسم' : el.__off.label;
+      if (icon) { var w = document.createElement('span'); w.innerHTML = on ? CHECK : el.__off.icon; var n = w.firstChild; n.setAttribute('class', icon.getAttribute('class')); icon.replaceWith(n); icon = n; }
+      if (icon && canAnimate && !reduced()) icon.animate([{ opacity: 0, transform: 'scale(.6)' }, { opacity: 1, transform: 'none' }], { duration: 200, easing: EASE_OUT });
+      toast(on ? 'ستصلك المواد الجديدة بوسم «' + name + '» في النشرة الأسبوعية.' : 'تم إلغاء متابعة الوسم.');
+    }
+  });
+
+  // Links that still point nowhere: stay on the page and say why, instead of jumping to the top.
+  document.addEventListener('click', function (e) {
+    if (e.defaultPrevented) return;
+    var a = e.target.closest('a[href="#"]'); if (!a) return;
+    e.preventDefault();
+    if (/PDF/.test(a.textContent)) toast(PDF_NOTE);
+    else if (a.closest('.footer, .share, .footer__social')) toast('يفعل هذا الرابط عند نشر الموقع.');
+  });
+
+  // "More" buttons open the region under them in place.
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-more]'); if (!b) return;
+    var box = document.getElementById(b.getAttribute('data-more')); if (!box) return;
+    var open = box.getAttribute('data-open') !== 'true';
+    box.setAttribute('data-open', String(open));
+    if (open) box.removeAttribute('inert'); else box.setAttribute('inert', '');
+    b.setAttribute('aria-expanded', String(open));
+    var span = $(':scope > span', b);
+    if (span) { if (!b.__label) b.__label = span.textContent; span.textContent = open && b.getAttribute('data-label-open') ? b.getAttribute('data-label-open') : b.__label; }
+    if (open && b.hasAttribute('data-once')) {
+      b.hidden = true;
+      var note = $('[data-more-note="' + box.id + '"]'); if (note) note.textContent = 'عرض كل مواد هذه الصفحة';
+      var first = $('a[href]', box); if (first) first.focus({ preventScroll: true });
+    }
+    box.dispatchEvent(new CustomEvent('sj:more', { bubbles: true }));
+  });
+
+  /* 22. Archive: filters, the chips they leave, sort, view, jump ---------- */
+  var normAr = function (s) { return String(s).replace(/[-]/g, '').replace(/[أإآ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه').toLowerCase(); };
+  var TYPE_GROUP = {
+    daily: function (it) { return it.t === 'monitor' && /يومي/.test(it.sub); },
+    weekly: function (it) { return it.t === 'monitor' && /أسبوعي/.test(it.sub); },
+    monitor: function (it) { return it.t === 'monitor'; },
+    periodic: function (it) { return it.t === 'monthly' || it.t === 'briefing'; },
+    pubs: function (it) { return it.t === 'thematic' || it.t === 'analysis' || it.t === 'translation'; }
+  };
+  function daysBefore(iso, n) { var d = new Date(iso + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() - n + 1); return d.toISOString().slice(0, 10); }
+  var DATE_TEST = {
+    '7': function (d) { return d >= daysBefore(TODAY, 7) && d <= TODAY; },
+    '30': function (d) { return d >= daysBefore(TODAY, 30) && d <= TODAY; },
+    '2026': function (d) { return d.slice(0, 4) === '2026'; },
+    '2025': function (d) { return d.slice(0, 4) === '2025'; }
+  };
+  var DATE_LABEL = { '7': 'آخر 7 أيام', '30': 'آخر 30 يوما', '2026': 'سنة 2026', '2025': 'سنة 2025' };
+
+  $$('[data-archive]').forEach(function (root) {
+    var id = root.getAttribute('data-archive');
+    var ctl = $('[data-f-controls="' + id + '"]');
+    var list = $('[data-f-list]', root);
+    if (!ctl || !list) return;
+    var qIn = $('[data-live-search="' + id + '"] [data-f-q]');
+    var chipsBox = $('[data-f-active]', root);
+    var badge = $('[data-sheet-open] span:last-child');
+    var applyBtn = $('[data-f-apply]');
+    var items = $$('.entry', list).map(function (el) {
+      return { el: el, t: el.getAttribute('data-type') || '', sub: el.getAttribute('data-sub') || '', d: el.getAttribute('data-date') || '', text: normAr(el.textContent) };
+    });
+    var heads = $$('.register__month', list);
+    var order0 = $$(':scope > .register__month, :scope > .entry', list);
+
+    function state() {
+      return {
+        types: $$('[data-f-type].is-on', ctl).map(function (x) { return x.getAttribute('data-f-type'); }),
+        date: ($('[data-f-date].is-on', ctl) || { getAttribute: function () { return null; } }).getAttribute('data-f-date'),
+        tags: $$('[data-f-tag].is-on', ctl).map(function (x) { return x.getAttribute('data-f-tag'); }),
+        q: qIn ? qIn.value.trim() : ''
+      };
+    }
+    function match(it, st) {
+      if (st.types.length && !st.types.some(function (k) { return TYPE_GROUP[k] && TYPE_GROUP[k](it); })) return false;
+      if (st.date && DATE_TEST[st.date] && !DATE_TEST[st.date](it.d)) return false;
+      if (st.tags.length && !st.tags.some(function (tg) { return it.text.indexOf(normAr(tg)) >= 0; })) return false;
+      if (st.q) { var words = normAr(st.q).split(/\s+/).filter(Boolean); if (!words.every(function (w) { return it.text.indexOf(w) >= 0; })) return false; }
+      return true;
+    }
+    function syncParent() {
+      $$('[data-f-parent]', ctl).forEach(function (p) {
+        var kids = $$('[data-f-of="' + p.getAttribute('data-f-parent') + '"]', ctl), on = kids.filter(function (k) { return k.classList.contains('is-on'); }).length;
+        p.classList.toggle('is-on', on === kids.length);
+        p.classList.toggle('is-mixed', on > 0 && on < kids.length);
+        var box = $('.check__box', p); if (box) box.innerHTML = on === kids.length ? CHECK : '';
+      });
+    }
+    function setCheck(label, on) {
+      label.classList.toggle('is-on', on);
+      var box = $('.check__box', label); if (box) box.innerHTML = on ? CHECK : '';
+    }
+    function chips(st) {
+      if (!chipsBox) return;
+      var out = [];
+      st.types.forEach(function (k) { var l = $('[data-f-type="' + k + '"]', ctl); if (l) out.push(['type:' + k, l.textContent.trim()]); });
+      if (st.date) out.push(['date:' + st.date, DATE_LABEL[st.date] || st.date]);
+      st.tags.forEach(function (t) { out.push(['tag:' + t, t]); });
+      if (st.q) out.push(['q', '«' + st.q + '»']);
+      chipsBox.innerHTML = out.map(function (c) {
+        return '<button class="chip is-on" type="button" data-f-remove="' + c[0] + '" aria-label="أزل مرشح ' + c[1] + '">' + c[1] + '<svg class="ic ic--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>';
+      }).join('');
+      if (badge) badge.textContent = String(out.length);
+    }
+    function unfold() {
+      $$('.collapse[data-open="false"]', list).forEach(function (c) {
+        c.setAttribute('data-open', 'true'); c.removeAttribute('inert');
+        var mb = $('[data-more="' + c.id + '"]'); if (mb) { mb.setAttribute('aria-expanded', 'true'); if (mb.hasAttribute('data-once')) mb.hidden = true; }
+        var note = $('[data-more-note="' + c.id + '"]'); if (note) note.textContent = 'عرض كل مواد هذه الصفحة';
+      });
+    }
+    function apply(user) {
+      if (user === true) unfold();
+      var st = state(), shown = 0;
+      items.forEach(function (it) {
+        var on = match(it, st);
+        if (on) shown += 1;
+        if (on && it.el.hidden) { it.el.hidden = false; if (canAnimate && !reduced()) it.el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200, easing: EASE_OUT }); }
+        else if (!on) it.el.hidden = true;
+      });
+      // each month says how many of its entries are showing, and steps aside when none are
+      heads.forEach(function (h) {
+        var n = 0;
+        for (var el = h.nextElementSibling; el && !el.classList.contains('register__month'); el = el.nextElementSibling) {
+          if (el.classList.contains('entry') && !el.hidden) n += 1;
+          if (el.classList.contains('collapse')) n += $$('.entry', el).filter(function (x) { return !x.hidden; }).length;
+        }
+        h.hidden = n === 0;
+        var sp = $('span', h); if (sp) sp.textContent = plural(n, 'مادة واحدة معروضة', 'مادتان معروضتان', 'مواد معروضة', 'مادة معروضة');
+      });
+      var empty = $('.list-empty', list);
+      if (!shown && !empty) {
+        empty = document.createElement('div'); empty.className = 'list-empty';
+        empty.innerHTML = '<p>لا مواد تطابق هذه المرشحات في هذه الصفحة.</p><button class="btn btn--secondary btn--sm" type="button" data-f-clear>امسح المرشحات</button>';
+        list.appendChild(empty);
+      }
+      if (empty) empty.hidden = !!shown;
+      chips(st);
+      if (applyBtn) { var sp2 = $(':scope > span', applyBtn) || applyBtn; sp2.textContent = shown ? 'اعرض ' + plural(shown, 'نتيجة واحدة', 'نتيجتين', 'نتائج', 'نتيجة') : 'لا نتائج'; }
+    }
+    function clearAll() {
+      $$('[data-f-type], [data-f-tag]', ctl).forEach(function (l) { setCheck(l, false); });
+      $$('[data-f-date]', ctl).forEach(function (c) { c.classList.remove('is-on'); c.setAttribute('aria-pressed', 'false'); });
+      if (qIn) qIn.value = '';
+      syncParent(); apply(true);
+    }
+
+    ctl.addEventListener('sj:check', function (e) {
+      var l = e.target;
+      if (l.hasAttribute('data-f-parent')) {
+        var on = l.classList.contains('is-on');
+        $$('[data-f-of="' + l.getAttribute('data-f-parent') + '"]', ctl).forEach(function (k) { setCheck(k, on); });
+      }
+      syncParent(); apply(true);
+    });
+    ctl.addEventListener('sj:chip', function () { apply(true); });
+    if (qIn) qIn.addEventListener('input', function () { apply(true); });
+    document.addEventListener('click', function (e) {
+      var clr = e.target.closest('[data-f-clear]'), sheetOf = clr && clr.closest('.sheet');
+      if (clr && (ctl.contains(clr) || root.contains(clr) || (sheetOf && sheetOf.contains(ctl)))) { clearAll(); return; }
+      var rm = e.target.closest('[data-f-remove]'); if (!rm || !chipsBox || !chipsBox.contains(rm)) return;
+      var key = rm.getAttribute('data-f-remove'), kind = key.split(':')[0], val = key.slice(kind.length + 1);
+      if (kind === 'type') { var l = $('[data-f-type="' + val + '"]', ctl); if (l) setCheck(l, false); }
+      else if (kind === 'tag') { var tg = $('[data-f-tag="' + val + '"]', ctl); if (tg) setCheck(tg, false); }
+      else if (kind === 'date') { var c = $('[data-f-date="' + val + '"]', ctl); if (c) { c.classList.remove('is-on'); c.setAttribute('aria-pressed', 'false'); } }
+      else if (kind === 'q' && qIn) qIn.value = '';
+      syncParent(); apply(true);
+      if (chipsBox.firstElementChild) chipsBox.firstElementChild.focus({ preventScroll: true });
+    });
+    list.addEventListener('sj:more', apply);
+
+    // sort: the same entries, in the other direction, sliding to their new places
+    var sortSel = $('[data-f-sort]', root);
+    if (sortSel) sortSel.addEventListener('change', function () {
+      var groups = [], cur = null;
+      order0.forEach(function (el) { if (el.classList.contains('register__month')) { cur = { head: el, rows: [] }; groups.push(cur); } else if (cur) cur.rows.push(el); });
+      if (sortSel.value === 'old') { groups.reverse(); groups.forEach(function (g) { g.rows.reverse(); }); }
+      var moving = order0.filter(function (el) { return !el.hidden; });
+      flip(moving, function () {
+        var tail = $('.list-empty', list);
+        groups.forEach(function (g) { list.insertBefore(g.head, tail); g.rows.forEach(function (r) { list.insertBefore(r, tail); }); });
+      }, 320);
+    });
+
+    // view: the register as rows, or as a grid of cards
+    var viewSeg = $('[data-f-view]', root);
+    if (viewSeg) viewSeg.addEventListener('click', function (e) {
+      var b = e.target.closest('button[data-v]'); if (!b) return;
+      var grid = b.getAttribute('data-v') === 'grid';
+      if (list.classList.contains('register--grid') === grid) return;
+      list.classList.toggle('register--grid', grid);
+      if (canAnimate && !reduced()) list.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200, easing: EASE_OUT });
+    });
+
+    // jump to a month
+    var jump = $('[data-f-jump]');
+    if (jump && id === 'archive-d') jump.addEventListener('change', function () {
+      var h = $('[data-month="' + jump.value + '"]', list);
+      if (h && !h.hidden) h.scrollIntoView({ block: 'start' });
+      else toast('هذا الشهر في صفحة أخرى من الأرشيف.');
+    });
+
+    syncParent(); apply();
+  });
+
+  /* 23. Periodic reports: by subtype, and as one chronological list ------- */
+  var subBox = $('[data-sub-filter]');
+  var issuesView = $('[data-issues-view]'), issuesList = $('[data-issues-list]');
+  var DAY_MONTH = ['', 'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+  function subNow() { var c = subBox && $('button.chip.is-on', subBox); return c ? c.getAttribute('data-sub') : 'all'; }
+  function renderIssuesList() {
+    if (!issuesList) return;
+    var k = subNow();
+    var parts = [];
+    $$('[data-issue]').forEach(function (card) {
+      $$('li[data-sub]', card).forEach(function (li) {
+        if (k !== 'all' && li.getAttribute('data-sub') !== k) return;
+        var a = $('a', li), tg = $('.tag', a);
+        parts.push({ d: li.getAttribute('data-date'), t: li.getAttribute('data-t'), sub: tg ? tg.textContent.trim() : '', title: a.textContent.replace(tg ? tg.textContent : '', '').trim(), href: a.getAttribute('href'), issue: card.getAttribute('data-issue') });
+      });
+    });
+    parts.sort(function (a, b) { return a.d < b.d ? 1 : -1; });
+    var html = '', month = '';
+    parts.forEach(function (p) {
+      var m = p.d.slice(0, 7);
+      if (m !== month) {
+        month = m;
+        var n = parts.filter(function (x) { return x.d.slice(0, 7) === m; }).length;
+        html += '<div class="register__month">' + DAY_MONTH[+m.slice(5)] + ' ' + m.slice(0, 4) + ' <span>' + plural(n, 'مادة واحدة', 'مادتان', 'مواد', 'مادة') + '</span></div>';
+      }
+      var day = +p.d.slice(8) + ' ' + DAY_MONTH[+p.d.slice(5, 7)] + ' ' + p.d.slice(0, 4);
+      html += '<article class="entry entry--compact"><div class="entry__date">' + day + '</div><div class="entry__type"><span class="tag tag--' + p.t + '">' + (TYPE_NAMES[p.t] || '') + '</span><span class="tag__sub">' + p.sub + '</span></div>' +
+        '<div><a class="entry__title" href="' + p.href + '">' + p.title + '</a><div class="entry__by"><div class="meta"><div class="meta__row"><span>عدد ' + p.issue + '</span></div></div></div></div></article>';
+    });
+    issuesList.innerHTML = html || '<p class="list-empty">لا مواد من هذا النوع في أعداد هذه السنة.</p>';
+  }
+  if (subBox) document.addEventListener('sj:chip', function (e) {
+    if (!subBox.contains(e.target)) return;
+    var k = subNow();
+    $$('[data-issue]').forEach(function (card) {
+      var shown = 0;
+      $$('li[data-sub]', card).forEach(function (li) {
+        var on = k === 'all' || li.getAttribute('data-sub') === k;
+        if (on && li.hidden && canAnimate && !reduced()) li.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200, easing: EASE_OUT });
+        li.hidden = !on; if (on) shown += 1;
+      });
+      var note = $('.issue-empty', card), ul = $('ul', card);
+      if (!shown && !note && ul) { note = document.createElement('p'); note.className = 'issue-empty'; note.textContent = 'لا مواد من هذا النوع في هذا العدد.'; ul.after(note); }
+      if (note) note.hidden = !!shown;
+    });
+    renderIssuesList();
+  });
+  var viewSwitch = $('[data-view-switch]');
+  if (viewSwitch && issuesView && issuesList) viewSwitch.addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-v]'); if (!b) return;
+    var list = b.getAttribute('data-v') === 'list';
+    if (list) renderIssuesList();
+    var show = list ? issuesList : issuesView, hide = list ? issuesView : issuesList;
+    if (!show.hidden) return;
+    hide.hidden = true; show.hidden = false;
+    if (canAnimate && !reduced()) show.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200, easing: EASE_OUT });
+  });
+
+  /* 24. Search answers as you type ------------------------------------------ */
+  var sIndex = (function () { var s = $('[data-search-index]'); try { return s ? JSON.parse(s.textContent) : null; } catch (e) { return null; } })();
+  var sForm = $('form[data-live-search="site"]');
+  if (sIndex && sForm) (function () {
+    var input = $('input', sForm), list = $('[data-s-list]'), countEl = $('[data-s-count]'), facetsBox = $('[data-s-facets]');
+    var dossier = $('[data-s-dossier]'), tabs = $$('[data-s-tab]');
+    var h1 = $('main h1.sr');
+    var briefsBox = document.createElement('div'); briefsBox.className = 'register'; briefsBox.hidden = true; briefsBox.style.marginTop = '20px';
+    var tagsBox = document.createElement('div'); tagsBox.className = 'chips s-tags'; tagsBox.hidden = true;
+    list.after(briefsBox, tagsBox);
+    var items = sIndex.items.map(function (it) { it.nt = normAr(it.title); it.nx = normAr(it.ex + ' ' + it.sub + ' ' + it.tn); return it; });
+    var esc = function (s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); };
+    function mark(text, words) {
+      if (!words.length) return esc(text);
+      var n = normAr(text), hits = [];
+      words.forEach(function (w) { var i = 0; while ((i = n.indexOf(w, i)) >= 0) { hits.push([i, i + w.length]); i += w.length; } });
+      if (!hits.length) return esc(text);
+      hits.sort(function (a, b) { return a[0] - b[0]; });
+      var out = '', at = 0;
+      hits.forEach(function (h) { if (h[0] < at) return; out += esc(text.slice(at, h[0])) + '<mark>' + esc(text.slice(h[0], h[1])) + '</mark>'; at = h[1]; });
+      return out + esc(text.slice(at));
+    }
+    function sortMode() { var r = $('[data-s-sort].is-on'); return r ? r.getAttribute('data-s-sort') : 'rel'; }
+    function row(it, words) {
+      return '<article class="entry" data-type="' + it.t + '" style="grid-template-columns:150px minmax(0,1fr)"><div class="entry__type" style="gap:8px"><span class="tag tag--' + it.t + ' ">' + it.tn + '</span><span class="entry__date" style="padding:0">' + it.date + '</span><span class="recno"><span>قيد</span><b>' + it.id + '</b></span></div>' +
+        '<div><a class="entry__title" href="' + it.href + '">' + mark(it.title, words) + '</a>' + (it.ex ? '<p class="entry__ex" style="-webkit-line-clamp:3">' + mark(it.ex, words) + '</p>' : '') +
+        '<div class="entry__by"><div class="meta "><div class="meta__row"><span>' + esc(it.by) + '</span><span>' + esc(it.sub || it.tn) + '</span></div></div></div></div></article>';
+    }
+    function render() {
+      var q = input.value.trim(), words = normAr(q).split(/\s+/).filter(Boolean);
+      var hits = [];
+      if (words.length) items.forEach(function (it) {
+        var score = 0, all = true;
+        words.forEach(function (w) {
+          var inT = it.nt.indexOf(w) >= 0, inX = it.nx.indexOf(w) >= 0, inId = String(it.id).indexOf(w) >= 0;
+          if (!inT && !inX && !inId) all = false;
+          score += (inT ? 3 : 0) + (inX ? 1 : 0) + (inId ? 5 : 0);
+        });
+        if (all) hits.push({ it: it, score: score });
+      });
+      if (sortMode() === 'new') hits.sort(function (a, b) { return a.it.iso < b.it.iso ? 1 : -1; });
+      else hits.sort(function (a, b) { return b.score - a.score || (a.it.iso < b.it.iso ? 1 : -1); });
+      var pubs = hits.filter(function (h) { return h.it.t !== 'monitor'; }), briefs = hits.filter(function (h) { return h.it.t === 'monitor'; });
+      var tags = words.length ? sIndex.tags.filter(function (t) { var n = normAr(t.n); return words.every(function (w) { return n.indexOf(w) >= 0; }); }) : [];
+      // facets follow the results; what was ticked stays ticked
+      var ticked = $$('[data-filter-type].is-on', facetsBox).map(function (l) { return l.getAttribute('data-filter-type'); });
+      var byType = {}; pubs.forEach(function (h) { byType[h.it.t] = (byType[h.it.t] || 0) + 1; });
+      facetsBox.innerHTML = Object.keys(byType).map(function (k) {
+        var on = ticked.indexOf(k) >= 0;
+        return '<label class="check ' + (on ? 'is-on' : '') + '" data-filter-type="' + k + '"><span class="check__box">' + (on ? CHECK : '') + '</span><span class="sq" style="--c:var(--type-' + k + ')"></span>' + TYPE_NAMES[k] + '<small>' + byType[k] + '</small></label>';
+      }).join('') || '<p class="t-caption">لا أنواع لعرضها.</p>';
+      ticked = ticked.filter(function (k) { return byType[k]; });
+      list.innerHTML = pubs.map(function (h) { return row(h.it, words); }).join('');
+      $$('.entry', list).forEach(function (el) { if (ticked.length && ticked.indexOf(el.getAttribute('data-type')) < 0) el.hidden = true; });
+      if (words.length && !pubs.length) list.innerHTML = '<div class="list-empty"><p>لا نتائج لـ«' + esc(q) + '» في المواد المنشورة. جرب كلمة أقصر، أو ابحث في الموجزات من مركز البيانات.</p></div>';
+      briefsBox.innerHTML = briefs.map(function (h) { return row(h.it, words); }).join('') || '<div class="list-empty"><p>لا موجزات تطابق «' + esc(q) + '». الموجزات تبحث بالتاريخ والمحافظة في <a href="data.html#briefs">مركز البيانات</a>.</p></div>';
+      tagsBox.innerHTML = tags.map(function (t) { return '<a class="chip' + (t.k === 'geo' ? ' chip--geo' : '') + '" href="tag.html">' + (t.k === 'dossier' ? 'ملف: ' : '') + esc(t.n) + '</a>'; }).join('') || '<p class="t-caption">لا وسوم تطابق «' + esc(q) + '».</p>';
+      var counts = { pubs: pubs.length, briefs: briefs.length, tags: tags.length };
+      tabs.forEach(function (b) { var sm = $('small', b); if (sm) sm.textContent = counts[b.getAttribute('data-s-tab')]; });
+      if (dossier) { var dn = normAr(dossier.getAttribute('data-s-dossier')); dossier.hidden = !words.length || !words.every(function (w) { return dn.indexOf(w) >= 0; }); }
+      var mode = sortMode() === 'new' ? 'الأحدث أولا' : 'مرتبة بحسب الصلة';
+      countEl.innerHTML = !words.length ? 'اكتب كلمة أو رقم قيد للبحث في سجل.' :
+        (pubs.length ? '<b style="color:var(--ink-900)">' + plural(pubs.length, 'نتيجة واحدة', 'نتيجتان', 'نتائج', 'نتيجة') + '</b> لـ«' + esc(q) + '» في المواد المنشورة، ' + mode : 'لا نتائج لـ«' + esc(q) + '» في المواد المنشورة.');
+      if (h1) h1.textContent = words.length ? 'نتائج البحث عن «' + q + '»' : 'البحث في سجل';
+      document.title = (words.length ? 'نتائج البحث: ' + q : 'البحث') + ' | سجل';
+      try { history.replaceState(null, '', words.length ? '?q=' + encodeURIComponent(q) : location.pathname); } catch (err) {}
+    }
+    function showTab(k) {
+      list.hidden = k !== 'pubs'; if (dossier && k !== 'pubs') dossier.hidden = true;
+      briefsBox.hidden = k !== 'briefs'; tagsBox.hidden = k !== 'tags';
+      if (k === 'pubs') render();
+      var box = k === 'pubs' ? list : k === 'briefs' ? briefsBox : tagsBox;
+      if (canAnimate && !reduced()) box.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 180, easing: EASE_OUT });
+    }
+    input.addEventListener('input', render);
+    sForm.addEventListener('submit', function (e) { e.preventDefault(); render(); });
+    document.addEventListener('click', function (e) {
+      var sug = e.target.closest('[data-q]');
+      if (sug) { e.preventDefault(); input.value = sug.getAttribute('data-q'); render(); input.focus(); return; }
+      if (e.target.closest('[data-act="clear-q"]')) { input.value = ''; render(); input.focus(); }
+    });
+    document.addEventListener('sj:tab', function (e) { var k = e.target.getAttribute && e.target.getAttribute('data-s-tab'); if (k) showTab(k); });
+    document.addEventListener('sj:check', function (e) { if (e.target.hasAttribute && e.target.hasAttribute('data-s-sort')) render(); });
+    render();
+  })();
+
+  /* 25. Field report bars explain themselves; the contact form ends on its own state */
+  $$('[data-bartips]').forEach(function (box) {
+    var tip = document.createElement('div');
+    tip.className = 'mtip bartip'; tip.setAttribute('role', 'tooltip'); tip.id = 'bartip-' + Math.random().toString(36).slice(2, 7);
+    tip.setAttribute('data-state', 'closed'); box.appendChild(tip);
+    var cur = null;
+    function show(r) {
+      var d; try { d = JSON.parse(r.getAttribute('data-tip')); } catch (e) { return; }
+      tip.innerHTML = '<div class="mtip__h"><span>' + d.t + '</span><b>' + d.n + '</b></div><ul>' +
+        d.v.map(function (x) { return '<li><span>' + x[0] + '</span><b>' + x[1] + '</b></li>'; }).join('') + '</ul>';
+      var above = r.offsetTop - tip.offsetHeight - 8;
+      tip.style.top = (above >= 0 ? above : r.offsetTop + r.offsetHeight + 8) + 'px';
+      tip.style.transformOrigin = above >= 0 ? '50% 100%' : '50% 0';
+      tip.setAttribute('data-state', 'open'); r.setAttribute('aria-describedby', tip.id); cur = r;
+    }
+    function hide() { tip.setAttribute('data-state', 'closed'); if (cur) cur.removeAttribute('aria-describedby'); cur = null; }
+    $$('.bar-row', box).forEach(function (r) {
+      if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+        r.addEventListener('pointerenter', function () { show(r); });
+        r.addEventListener('pointerleave', hide);
+      }
+      r.addEventListener('focus', function () { show(r); });
+      r.addEventListener('blur', hide);
+    });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && cur) hide(); });
+  });
+
+  // the message's length, as it is written
+  $$('[data-count]').forEach(function (c) {
+    var max = +c.getAttribute('data-count'), ta = $('textarea', c.closest('.field'));
+    if (!ta) return;
+    ta.addEventListener('input', function () { c.textContent = ta.value.length + ' / ' + max; });
+  });
+  // the help under "message type" answers the chosen type
+  $$('[data-help-for]').forEach(function (sel) {
+    var help = document.getElementById(sel.getAttribute('data-help-for')); if (!help) return;
+    sel.addEventListener('change', function () { var o = sel.options[sel.selectedIndex]; if (o && o.getAttribute('data-help')) swap(help, o.getAttribute('data-help')); });
+  });
+  function formDone(f, box) {
+    var mail = $('input[type="email"]', f), d = new Date();
+    var idEl = $('[data-done-id]', box), mEl = $('[data-done-mail]', box);
+    if (idEl) idEl.textContent = 'MSG-' + ('0' + (d.getMonth() + 1)).slice(-2) + ('0' + d.getDate()).slice(-2) + '-' + ('0' + Math.floor(Math.random() * 100)).slice(-2);
+    if (mEl) mEl.textContent = mail ? mail.value.trim() : '';
+    // the answer replaces the form at once; the panel eases in (CSS @starting-style), nothing waits on a fade-out
+    f.hidden = true; box.hidden = false; box.focus({ preventScroll: true });
+  }
+  document.addEventListener('click', function (e) {
+    var again = e.target.closest('[data-act="form-again"]'); if (!again) return;
+    var box = again.closest('[data-form-done]'), f = box && $('form[data-validate]', box.parentElement); if (!f) return;
+    f.reset();
+    $$('[data-count]', f).forEach(function (c) { c.textContent = '0 / ' + c.getAttribute('data-count'); });
+    box.hidden = true; f.hidden = false;
+    var first = $('input, textarea', f); if (first) first.focus();
+  });
 
   /* 18. Toast: enters and leaves by the same edge ------------------------ */
   function toast(msg) {

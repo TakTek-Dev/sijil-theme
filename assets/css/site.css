@@ -327,3 +327,81 @@ html.first-view:not(.first-done) .sj.site .sec-head.is-in .seen i:nth-child(3) {
 html.first-view:not(.first-done) .sj.site[data-page="index"] .mon:not(.mon-in) :is(.mpin, .mbar__f, .mon-govrow__bar i) { opacity: 0; }
 /* filtered-out rows leave the flow (component display rules would otherwise beat [hidden]) */
 .sj .entry[hidden], .sj .list-empty[hidden] { display: none; }
+
+/* ---------- 9. Inner pages: what the actions leave behind, the archive grid, the lists they build, print ---------- */
+/* a button that did its job shows a check for a moment (sijil.js confirmOn) */
+.sj.site .is-done > .ic { color: var(--success); }
+/* following a tag is a state, not a one-off */
+.sj.site [data-act="follow"][aria-pressed="true"] { background: var(--navy-800); border-color: var(--navy-800); color: var(--paper-100); }
+/* "more" opens in place; its chevron turns with it */
+.sj.site [data-more] > .ic { transition: transform var(--dur-2) var(--ease-out); }
+.sj.site [data-more][aria-expanded="true"] > .ic { transform: rotate(180deg); }
+.list-empty .btn { margin-top: 12px; }
+.list-empty p + .btn { display: inline-flex; }
+.issue-empty { padding: 12px 0; font: 500 13.5px/1.6 var(--font-kufi); color: var(--text-subtle); border-bottom: 1px solid var(--border-soft); }
+/* these carry inline display rules from the canvas markup, so [hidden] needs the upper hand */
+.sj.site .btn[hidden], .sj .register__month[hidden] { display: none !important; }
+.issue-empty[hidden], .sj [data-issues-view][hidden], .sj [data-issues-list][hidden], .sj .s-tags[hidden], .sj .register[hidden], .sj [data-issue] li[hidden], .sj [data-s-dossier][hidden] { display: none !important; }
+.issues-list { margin-top: 36px; }
+.s-tags { margin-top: 20px; }
+
+/* the archive as a grid of cards: the same entries, the picture first */
+.sj.site .register.register--grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px 24px; }
+.sj.site .register--grid > .register__month, .sj.site .register--grid > .list-empty { grid-column: 1 / -1; }
+.sj.site .register--grid > .register__month[hidden] { display: none; }
+.sj.site .register--grid > .entry { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "thumb thumb" "type type" "body body" "date rec"; align-content: start; gap: 8px 12px; padding: 0 0 16px; }
+.sj.site .register--grid > .entry > .entry__rec { grid-area: rec; padding: 0; }
+.sj.site .register--grid > .entry > .entry__date { grid-area: date; padding: 0; font-size: 12.5px; font-weight: 500; color: var(--text-subtle); }
+.sj.site .register--grid > .entry > .entry__type { grid-area: type; flex-direction: row; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; padding: 0; }
+.sj.site .register--grid > .entry > .entry__type .tag__sub { padding: 0; }
+.sj.site .register--grid > .entry > :nth-child(4) { grid-area: body; }
+.sj.site .register--grid > .entry > :nth-child(5) { grid-area: thumb; }
+.sj.site .register--grid > .entry > div[aria-hidden="true"]:last-child { display: none; }
+.sj.site .register--grid .entry__ex { display: none; }
+.sj.site .register--grid .entry__title { font-size: 17px; }
+.sj.site .register--grid > .entry[hidden] { display: none; }
+
+/* the field report's stacked bars explain themselves on hover, focus or tap */
+.sj.site .bar-row { cursor: default; border-radius: var(--r-1); }
+.sj.site .bar-row:focus-visible { outline: 2px solid var(--focus); outline-offset: 4px; }
+.sj.site .bartip { inset-inline-start: 132px; top: 0; }
+.sj.site .bar-row[aria-describedby] > span:first-child { color: var(--navy-800); font-weight: 700; }
+/* search: the matched words, in the system's highlight */
+.sj.site mark { background: var(--gold-200); color: inherit; padding-inline: 1px; }
+/* with no matching dossier the list sits right under the tabs, one rule only */
+.sj.site [data-s-dossier][hidden] + [data-s-list] { border-top: 0; margin-top: 4px; }
+
+/* contact: the form gives way to what happened */
+.sj.site .form-done { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; transition: opacity var(--dur-3) var(--ease-out), transform var(--dur-3) var(--ease-out); }
+.sj.site .form-done[hidden] { display: none; }
+@starting-style { .sj.site .form-done { opacity: 0; transform: translateY(8px); } }
+.sj.site .form-done:focus { outline: none; }
+.sj.site form[hidden] { display: none !important; }
+
+/* tables: the row under the pointer, to read across */
+@media (hover: hover) and (pointer: fine) {
+  .sj.site main tbody tr { transition: background-color var(--dur-1) ease; }
+  .sj.site main tbody tr:hover { background: var(--surface); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sj.site .form-done { transition: opacity var(--dur-3) var(--ease-out); }
+  @starting-style { .sj.site .form-done { transform: none; } }
+  .sj.site [data-more] > .ic { transition: none; }
+}
+
+/* print: the document, not the site around it (article, report, field report, brief) */
+@media print {
+  @page { margin: 16mm 14mm; }
+  html, body, .sj.site { background: #fff !important; }
+  .sj.site { min-height: 0; overflow: visible; }
+  .sj.site .site-head, .sj.site header.masthead, .sj.site .monbar, .sj.site footer, .drawer, .sheet, .sheet-backdrop, .toast-host, .readbar,
+  .sj.site .skip, .sj.site aside, .sj.site .share, .sj.site .crumbs, .sj.site nav.tabs, .sj.site .btn, .sj.site .cite button,
+  .sj.site section[aria-labelledby="rel"], .sj.site nav[aria-label="التنقل بين المواد"], .sj.site .mtip { display: none !important; }
+  .sj.site, .sj.site * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .sj.site a { color: inherit; text-decoration: none; }
+  .sj.site .container { max-width: none; padding-inline: 0; }
+  .sj.site main .grid-12 > * { grid-column: 1 / -1 !important; }
+  .sj.site img, .sj.site figure, .sj.site table, .sj.site .bar-row, .sj.site li { break-inside: avoid; }
+  .sj.site h1, .sj.site h2, .sj.site h3 { break-after: avoid; }
+  .sj.site .collapse { grid-template-rows: 1fr !important; opacity: 1 !important; }
+}
