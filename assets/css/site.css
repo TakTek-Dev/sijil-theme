@@ -117,8 +117,6 @@ html.is-locked, html.is-locked body { overflow: hidden; }
   /* a tab row that scrolls shows it: its far edge fades */
   .sj.site main .tabs { mask-image: linear-gradient(to left, transparent 0, #000 28px); }
   .sj.site main .grid-12 > * { width: 100%; }
-  /* a stacked photo stays a landscape band, not a full screen of picture */
-  .sj.site .about-photo .frame { aspect-ratio: 16 / 9 !important; }
   .sj.site main .grid-12 > [style*="border-inline-start"] { border-inline-start: 0 !important; padding-inline-start: 0 !important; }
   .sj.site main .grid-12 > [style*="margin-top:-"] { margin-top: 0 !important; }
   .sj.site main h1 { font-size: clamp(32px, 4.6vw, 44px) !important; line-height: 1.34 !important; }
@@ -211,6 +209,9 @@ html.is-locked, html.is-locked body { overflow: hidden; }
   .sj.site main section[aria-labelledby="dc-title"] .grid-12 > *,
   .sj.site main section[aria-labelledby="led-title"] .grid-12 > * { width: 100%; }
   .sj.site main section[aria-labelledby="dc-title"] .fit { margin-inline: auto !important; }
+  /* the current issue: the title runs across; lede, figure and split sit centred against the 16:9 photo, actions below */
+  .sj.site .issues:not(.issues--t, .issues--m) .issues__panel--full .issues__main { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: "meta meta" "title title" ". media" "lede media" "fig media" "gov media" ". media" "acts acts"; grid-template-rows: auto auto 1fr auto auto auto 1fr auto; }
+  .sj.site .issues:not(.issues--t, .issues--m) .issues__panel--full .issues__media { margin-top: 14px; }
 }
 
 /* ---------- 7. States ---------- */

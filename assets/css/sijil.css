@@ -385,7 +385,6 @@
    ========================================================================== */
 .frame { position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: var(--paper-300); border-radius: var(--r-2); }
 .frame > img { width: 100%; height: 100%; object-fit: cover; transition: filter var(--dur-2) var(--ease-out); }
-.frame--wide { aspect-ratio: 21 / 9; }
 .frame > .tag--solid { position: absolute; inset-block-start: 0; inset-inline-start: 0; border-end-end-radius: var(--r-1); }
 .frame__strip { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 10px; font: 500 13px/1.4 var(--font-kufi); color: var(--text-subtle); }
 .figcap { display: flex; gap: 10px; padding-top: 10px; font: 400 13px/1.7 var(--font-kufi); color: var(--text-subtle); }
@@ -401,6 +400,10 @@
 .dcover { container-type: inline-size; }
 .dcover__num { font: 800 clamp(34px, 24cqi, 64px)/1 var(--font-kufi); color: var(--type-monitor); font-variant-numeric: tabular-nums; }
 .dcover--issue { padding: 5% 5.5%; }
+.dcover--lead { padding: 5.5% 6%; }
+.dcover--lead .dcover__num { font-size: clamp(56px, 22cqi, 120px); }
+.dcover--lead .dcover__unit { font-size: clamp(15px, 4cqi, 22px); }
+.dcover--lead .dcover__date { font-size: clamp(13px, 3cqi, 16px); }
 @container (max-width: 70px) {
   .dcover > span:first-child:not(.dcover__num) { display: none; }
   .dcover .dcover__num { font-size: 24px !important; }
@@ -913,9 +916,6 @@
 .map--light .map-ctl button { color: var(--navy-800); border-bottom-color: var(--border); }
 .map--light .recency { color: var(--text-muted); }
 
-/* the current issue's photo as a band across the page */
-.frame--band { aspect-ratio: 3 / 1; }
-.frame--band > img { object-position: 50% 36%; }
 /* Periodic issues: the year's issues as a shelf of bars; each bar is a tab that opens its issue underneath.
    Bars are data terminals (square), the chosen one is navy, the month still being documented is hatched. */
 .issues { --H: 132px; }
@@ -958,14 +958,12 @@
 .issues__acts { grid-area: acts; margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px; }
 .issues__side { grid-area: side; align-self: center; }
 .issues__side .issues__fig { margin-top: 0; }
-/* the photo takes the height of the text beside it, never less than a landscape band */
-.issues__media { grid-area: media; align-self: stretch; display: flex; flex-direction: column; }
-.issues__media > a { flex: 1 1 auto; display: flex; min-height: 220px; }
-.issues__media .frame { flex: 1 1 auto; aspect-ratio: auto; }
-.issues__media .frame > img { position: absolute; inset: 0; }
+/* the photo is 16:9 like every photo on the site (client request, 28 Sep 2026) */
+.issues__media { grid-area: media; align-self: center; }
+.issues__media > a { display: block; }
 .issues__media figcaption { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding-top: 10px; }
 .issues__panel--full .issues__main { grid-template-areas: "meta media" "title media" "lede media" "fig media" "gov media" "acts media"; grid-template-rows: repeat(5, auto) 1fr; }
-.issues__panel--photo .issues__main { grid-template-areas: "meta media" "title media" "fig media" "acts media"; grid-template-rows: repeat(3, auto) 1fr; }
+.issues__panel--photo .issues__main { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); grid-template-areas: ". media" "meta media" "title media" "fig media" "acts media" ". media"; grid-template-rows: 1fr repeat(4, auto) 1fr; }
 .issues__panel--plain .issues__main { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); grid-template-areas: "meta side" "title side"; }
 /* the parts sit on one release line; each part carries its own stretch of it, so a wrapped row gets its own line */
 .issues__parts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); row-gap: 22px; margin-top: 30px; }
@@ -980,8 +978,8 @@
 .issues--t .issues__panel { padding: 24px; }
 .issues--t .issues__main { column-gap: 28px; }
 .issues--t .issues__title { font-size: 25px; }
-.issues--t .issues__panel--full .issues__main { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: "meta meta" "title title" "lede media" "fig media" "gov media" "acts acts"; grid-template-rows: auto auto auto auto 1fr auto; }
-.issues--t .issues__panel--full .issues__media { margin-top: 14px; }
+.issues--t .issues__panel--full .issues__main { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: "meta meta" "title title" "lede lede" ". media" "fig media" "gov media" "acts media" ". media"; grid-template-rows: auto auto auto 1fr auto auto auto 1fr; }
+.issues--t .issues__panel--full .issues__media { margin-top: 20px; }
 .issues--t .issues__parts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 /* phone: seven thin columns (the month still open is named in the hint), one column of content, photo first */
 .issues--m { --H: 84px; }
@@ -999,8 +997,6 @@
 .issues--m .issues__panel--photo .issues__main { grid-template-areas: "media" "meta" "title" "fig" "acts"; }
 .issues--m .issues__panel--plain .issues__main { grid-template-areas: "meta" "title" "side"; }
 .issues--m .issues__media { margin-bottom: 16px; }
-.issues--m .issues__media > a { flex: none; min-height: 0; }
-.issues--m .issues__media .frame { aspect-ratio: 16 / 9; }
 .issues--m .issues__media figcaption { flex-direction: column; gap: 2px; }
 .issues--m .issues__side { margin-top: 16px; }
 .issues--m .issues__title { font-size: 21px; line-height: 1.5; }
@@ -1012,11 +1008,14 @@
 .issues--m .issues__parts a { flex-basis: 100%; margin-top: 2px; }
 .issues--m .issues__parts li::before { top: 7px; inset-inline-start: -23px; }
 
-/* The lead story beside a list: the photo takes whatever height the list leaves, so no dead space opens under it */
+/* The lead story beside the briefs: its photo is 16:9 like every photo; the briefs open on the latest day's data cover
+   and their rows share out whatever height is left, so neither column ends in dead space */
 .feature--lead { display: flex; flex-direction: column; min-width: 0; }
-.feature--lead .feature__media { display: flex; flex: 1 1 auto; min-height: 300px; }
-.feature--lead .feature__media > .frame { flex: 1 1 auto; aspect-ratio: auto; }
-.feature--lead .feature__media > .frame > img { position: absolute; inset: 0; }
+.feature--lead .feature__media { display: block; }
+.dlist { display: flex; flex-direction: column; min-height: 100%; }
+.dlist__rows { flex: 1 1 auto; display: flex; flex-direction: column; }
+.dlist__rows > li { flex: 1 1 auto; display: flex; }
+.dlist__rows > li > a { flex: 1 1 auto; }
 .feature--lead .feature__body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px 32px; align-items: start; margin-top: 10px; }
 
 /* Map symbols: proportional circles (area reads truer than squares); the square stays a small type marker only */
