@@ -4,7 +4,7 @@
 
 /* ---------- 1. Page ---------- */
 html { -webkit-text-size-adjust: 100%; }
-body { margin: 0; background: #F6F3EC; }
+body { margin: 0; background: #F4F4F4; }
 .sj.site { overflow: clip; min-height: 100vh; }
 @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
 .sj.site [id] { scroll-margin-top: 104px; }
