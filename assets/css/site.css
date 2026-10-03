@@ -55,7 +55,7 @@ html.is-locked, html.is-locked body { overflow: hidden; }
 .sheet { position: fixed; inset-inline: 0; bottom: 0; max-height: 88vh; z-index: var(--z-sheet); }
 .sheet[hidden], .sheet-backdrop[hidden] { display: none !important; }
 .sheet > div[style*="flex:1"] { overflow-y: auto !important; }
-.sheet-backdrop { position: fixed; inset: 0; z-index: var(--z-backdrop); background: rgba(8, 26, 49, .55); }
+.sheet-backdrop { position: fixed; inset: 0; z-index: var(--z-backdrop); background: rgba(20, 21, 24, .55); }
 
 .toast-host { position: fixed; inset-inline: 16px; bottom: 24px; z-index: var(--z-toast); display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none; }
 .toast-host .toast { pointer-events: auto; max-width: 440px; transition: opacity var(--dur-3) var(--ease-out), transform var(--dur-3) var(--ease-out); }

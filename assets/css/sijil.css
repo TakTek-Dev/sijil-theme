@@ -1,29 +1,30 @@
 /* ==========================================================================
    Sijil Design System — sijil.css  (v1.0 · 2026-09)
-   Brand source: Sijil identity board (navy #12345A · gold #BFA46F · cream #F6F3EC)
+   Brand source: Sijil identity (Oct 2026): charcoal #27292D, maroon #923D42, on cream #F6F3EC.
+   Token names keep their first roles: --navy-* is the charcoal scale, --gold-* the maroon scale.
    Concept: "The Open Register" — the site behaves like an institutional ledger.
    RTL-native: logical properties only. Arabic text is never letter-spaced.
    ========================================================================== */
 
 :root {
   /* ---------- Brand primitives ---------- */
-  --navy-950: #081A31;
-  --navy-900: #0B2240;
-  --navy-800: #12345A;          /* brand navy — trust, institution */
-  --navy-700: #1C4570;
-  --navy-600: #2B5A8A;
-  --navy-400: #6F8DB3;
-  --navy-300: #8FA6C1;
-  --navy-200: #C3CFDD;
-  --navy-100: #E1E7EE;
-  --navy-50:  #EEF1F5;
+  --navy-950: #141518;
+  --navy-900: #1C1E21;
+  --navy-800: #27292D;          /* brand charcoal: structure, institution */
+  --navy-700: #36393E;
+  --navy-600: #4A4D53;
+  --navy-400: #7D8086;
+  --navy-300: #9C9EA3;
+  --navy-200: #CACBCE;
+  --navy-100: #E4E4E6;
+  --navy-50:  #F0F0F1;
 
-  --gold-700: #7A612E;          /* gold used as text on light surfaces */
-  --gold-600: #A88B52;
-  --gold-500: #BFA46F;          /* brand gold — extracted knowledge */
-  --gold-300: #D8C69E;
-  --gold-200: #E8DDC4;
-  --gold-100: #F2EBDC;
+  --gold-700: #6E2C30;          /* maroon as text on light surfaces */
+  --gold-600: #7F3439;
+  --gold-500: #923D42;          /* brand maroon: the س, accents */
+  --gold-300: #C08A8E;
+  --gold-200: #DDBDBF;
+  --gold-100: #EEDCDD;
 
   --paper-50:  #FCFBF8;
   --paper-100: #F6F3EC;         /* brand cream — the page */
@@ -31,15 +32,15 @@
   --paper-300: #E3DCCD;
   --paper-400: #CFC6B4;
 
-  --ink-900: #101820;
-  --ink-800: #1E2833;
-  --ink-700: #3A4452;
+  --ink-900: #17181B;
+  --ink-800: #25272B;
+  --ink-700: #404349;
   --ink-500: #5B6470;
   --ink-400: #858C95;
 
   /* ---------- Content types (fixed across the whole site) ---------- */
-  --type-monitor:     #8E3420;  /* رصد — موجز يومي/أسبوعي */
-  --type-monthly:     #12345A;  /* تقرير شهري — إحصائي/سردي */
+  --type-monitor:     #923D42;  /* رصد — موجز يومي/أسبوعي */
+  --type-monthly:     #27292D;  /* تقرير شهري — إحصائي/سردي */
   --type-briefing:    #1B5A58;  /* إحاطة */
   --type-thematic:    #7A612E;  /* تقرير موضوعي / دراسة / تقدير موقف */
   --type-analysis:    #4A3F75;  /* مقال تحليلي */
@@ -55,12 +56,13 @@
   --text-muted: var(--ink-700);
   --text-subtle: var(--ink-500);
   --text-inverse: var(--paper-100);
-  --text-inverse-muted: #B7C3D2;
+  --text-inverse-muted: #BDBFC3;
   --border: var(--paper-400);
   --border-soft: var(--paper-300);
   --border-strong: var(--navy-800);
   --border-input: var(--ink-400);
-  --border-inverse: #2A4A72;
+  --border-inverse: #45484E;
+  --maroon: #923D42;           /* the brand maroon itself, never lifted */
   --accent: var(--gold-500);
   --accent-ink: var(--gold-700);
   --link: var(--navy-800);
@@ -71,10 +73,10 @@
   --error:   #A12A1E; --error-bg:   #F6E1DD;
 
   /* ---------- Data ---------- */
-  --seq-1: #EEF1F5; --seq-2: #C9D3DF; --seq-3: #93A6BD; --seq-4: #52709A; --seq-5: #12345A;
-  --rec-1: #F26B43; --rec-2: #E39A55; --rec-3: #D2BD78; --rec-4: #A9B39E; --rec-5: #7F93AA;   /* on navy */
-  --recl-1: #B8401F; --recl-2: #C8703A; --recl-3: #BF9A56; --recl-4: #A3A08A; --recl-5: #8C98A6; /* on paper */
-  --gov-quneitra: #12345A; --gov-daraa: #BFA46F; --gov-rif: #8FA6C1; --gov-other: #CFC6B4;
+  --seq-1: #F0F0F1; --seq-2: #D3D4D6; --seq-3: #A5A7AB; --seq-4: #66696E; --seq-5: #27292D;
+  --rec-1: #F26B43; --rec-2: #E39A55; --rec-3: #D2BD78; --rec-4: #A9B39E; --rec-5: #8E9095;   /* on navy */
+  --recl-1: #B8401F; --recl-2: #C8703A; --recl-3: #BF9A56; --recl-4: #A3A08A; --recl-5: #94969A; /* on paper */
+  --gov-quneitra: #27292D; --gov-daraa: #923D42; --gov-rif: #9C9EA3; --gov-other: #CFC6B4;
 
   /* ---------- Typography ---------- */
   --font-kufi: "Noto Kufi Arabic", "Segoe UI", Tahoma, sans-serif;
@@ -116,13 +118,13 @@
   /* surfaces: canvas → section → raised; the interactive tint lives on hover */
   --surface-section: #EFEADF;
   --surface-raised: #FCFBF8;
-  --surface-hover: rgba(18, 52, 90, .035);
+  --surface-hover: rgba(39, 41, 45, .035);
   --rule-hair: 1px solid var(--border);
   --rule-strong: 2px solid var(--border-strong);
   --rule-heavy: 4px solid var(--border-strong);
 
   /* ---------- Elevation (flat by default; overlays only) ---------- */
-  --shadow-overlay: 0 24px 48px -24px rgba(11, 34, 64, .38), 0 2px 8px rgba(11, 34, 64, .08);
+  --shadow-overlay: 0 24px 48px -24px rgba(28, 30, 33, .38), 0 2px 8px rgba(28, 30, 33, .08);
   --shadow-sticky: 0 1px 0 var(--border);
 
   /* ---------- Motion ---------- */
@@ -177,6 +179,8 @@
 :where(.sj) input, :where(.sj) select, :where(.sj) textarea { font: inherit; color: inherit; margin: 0; }
 :where(.sj) svg { direction: ltr; flex-shrink: 0; }
 .sj :focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+/* on charcoal the maroon is lifted so the س, kickers and highlights still read */
+.inv { --gold-500: #CC7C81; --gold-300: #E2B3B6; --accent: #CC7C81; --focus-inverse: #CC7C81; }
 .sj .inv :focus-visible, .sj .inv:focus-visible { outline-color: var(--focus-inverse); }
 .sj .num, .sj .ltr { direction: ltr; unicode-bidi: isolate; }
 .sj .tnum { font-variant-numeric: tabular-nums; }
@@ -332,8 +336,8 @@
 .btn--secondary:hover { background: var(--navy-50); }
 .btn--ghost { color: var(--navy-800); padding-inline: 8px; }
 .btn--ghost:hover { background: var(--navy-50); }
-.btn--gold { background: var(--gold-500); color: var(--navy-950); }
-.btn--gold:hover { background: var(--gold-300); }
+.btn--gold { background: var(--maroon); color: var(--paper-50); }
+.btn--gold:hover { background: var(--gold-600); }
 .btn--inv { border-color: var(--text-inverse-muted); color: var(--paper-100); }
 .btn--inv:hover { background: var(--navy-700); }
 .btn--sm { height: 36px; padding-inline: 14px; font-size: 14px; }
@@ -390,7 +394,7 @@
 .figcap { display: flex; gap: 10px; padding-top: 10px; font: 400 13px/1.7 var(--font-kufi); color: var(--text-subtle); }
 .figcap::before { content: ""; width: 16px; height: 2px; background: var(--gold-500); margin-top: 10px; flex-shrink: 0; }
 .figcap b { font-weight: 600; color: var(--text-muted); }
-.frame--missing { display: flex; align-items: center; justify-content: center; background: var(--surface-sunken); background-image: repeating-linear-gradient(135deg, transparent 0 11px, rgba(18, 52, 90, .05) 11px 12px); }
+.frame--missing { display: flex; align-items: center; justify-content: center; background: var(--surface-sunken); background-image: repeating-linear-gradient(135deg, transparent 0 11px, rgba(39, 41, 45, .05) 11px 12px); }
 .frame--missing .ph { display: flex; flex-direction: column; align-items: center; gap: 10px; color: var(--text-subtle); font: 500 13px/1.4 var(--font-kufi); }
 
 /* ==========================================================================
@@ -493,7 +497,7 @@
 .inv .units i.q { background: var(--paper-100); }
 .inv .units i.d { background: var(--gold-500); }
 .inv .units i.r { background: var(--navy-300); }
-.inv .units i.o { background: #4B6A91; }
+.inv .units i.o { background: #5C5F65; }
 .legend { display: flex; flex-wrap: wrap; gap: 8px 18px; font: 500 13px/1.4 var(--font-kufi); color: var(--text-muted); }
 .legend > span { display: inline-flex; align-items: center; gap: 8px; }
 .legend i { width: 9px; height: 10px; display: inline-block; background: linear-gradient(90deg, var(--c) 0 22%, transparent 0 39%, var(--c) 0 61%, transparent 0 78%, var(--c) 0); }
@@ -518,7 +522,7 @@
   .bars__x:has(> span:nth-child(9)) > span:nth-child(even) { padding-top: 15px; }
 }
 .inv .bars { border-bottom-color: var(--border-inverse); }
-.inv .bars__b { background: #34557E; }
+.inv .bars__b { background: #4A4D53; }
 .inv .bars__col.is-hi .bars__b { background: var(--gold-500); }
 .inv .bars__v { color: var(--paper-100); }
 .inv .bars__x span { color: var(--text-inverse-muted); }
@@ -531,7 +535,7 @@
 .hbar__fill { height: 100%; background: var(--c, var(--navy-800)); }
 .hbar__v { font: 700 13.5px/1 var(--font-kufi); text-align: end; font-variant-numeric: tabular-nums; }
 .inv .hbar { color: var(--paper-100); }
-.inv .hbar__track { background: #173E68; }
+.inv .hbar__track { background: #34373C; }
 
 /* ==========================================================================
    Map module
@@ -541,10 +545,10 @@
 .map__over { position: absolute; inset: 0; width: 100%; height: 100%; direction: ltr; pointer-events: none; }
 .pin { position: absolute; transform: translate(50%, -50%); display: flex; align-items: center; gap: 8px; }
 .pin__sq { width: var(--ps, 18px); height: var(--ps, 18px); background: var(--pc, var(--rec-1)); outline: 2px solid var(--navy-900); display: flex; align-items: center; justify-content: center; font: 800 11px/1 var(--font-kufi); color: var(--navy-950); }
-.pin__label { background: rgba(11, 34, 64, .92); color: var(--paper-100); font: 600 12.5px/1 var(--font-kufi); padding: 7px 9px; border: 1px solid var(--border-inverse); white-space: nowrap; display: flex; gap: 8px; align-items: center; }
+.pin__label { background: rgba(28, 30, 33, .92); color: var(--paper-100); font: 600 12.5px/1 var(--font-kufi); padding: 7px 9px; border: 1px solid var(--border-inverse); white-space: nowrap; display: flex; gap: 8px; align-items: center; }
 .pin__label b { color: var(--gold-500); font-weight: 800; font-variant-numeric: tabular-nums; }
-.maplabel { position: absolute; transform: translate(50%, -50%); font: 600 12px/1 var(--font-kufi); color: rgba(183, 195, 210, .75); white-space: nowrap; }
-.maplabel--lg { font-size: 14px; color: rgba(183, 195, 210, .55); letter-spacing: 0; }
+.maplabel { position: absolute; transform: translate(50%, -50%); font: 600 12px/1 var(--font-kufi); color: rgba(189, 191, 195, .75); white-space: nowrap; }
+.maplabel--lg { font-size: 14px; color: rgba(189, 191, 195, .55); letter-spacing: 0; }
 .map-ctl { position: absolute; display: flex; flex-direction: column; border: 1px solid var(--border-inverse); background: var(--navy-900); }
 .map-ctl button { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: var(--paper-100); border-bottom: 1px solid var(--border-inverse); }
 .map-ctl button:last-child { border-bottom: 0; }
@@ -561,7 +565,7 @@
 .input, .select, .textarea { width: 100%; height: 48px; padding-inline: 14px; border: 1px solid var(--border-input); background: var(--surface); border-radius: var(--r-1); font: 400 15px/1 var(--font-kufi); color: var(--ink-900); transition: border-color var(--dur-1), box-shadow var(--dur-1); }
 .input::placeholder, .textarea::placeholder { color: var(--ink-400); }
 .textarea { height: 148px; padding-block: 12px; line-height: 1.8; resize: vertical; }
-.input:focus, .select:focus, .textarea:focus, .is-focus { outline: none; border-color: var(--navy-800); box-shadow: 0 0 0 3px rgba(18, 52, 90, .16); }
+.input:focus, .select:focus, .textarea:focus, .is-focus { outline: none; border-color: var(--navy-800); box-shadow: 0 0 0 3px rgba(39, 41, 45, .16); }
 .input.is-error { border-color: var(--error); box-shadow: 0 0 0 3px rgba(161, 42, 30, .12); }
 .field__error { display: flex; align-items: center; gap: 6px; font: 500 12.5px/1.5 var(--font-kufi); color: var(--error); }
 .field__error[hidden] { display: none; }
@@ -848,7 +852,7 @@
 .mon__title h2 { font: 700 var(--fs-h2)/var(--lh-h2) var(--font-kufi); color: var(--navy-800); margin-top: 8px; }
 .mon__title p { font: 400 15px/1.8 var(--font-kufi); color: var(--text-muted); margin-top: 6px; max-width: 560px; }
 .mon__ctl { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
-.mon-panel { display: flex; flex-direction: column; gap: 14px; background: var(--surface-raised); border-radius: var(--r-2); padding: 22px 22px 20px; box-shadow: 0 0 0 1px rgba(18, 52, 90, .06); }
+.mon-panel { display: flex; flex-direction: column; gap: 14px; background: var(--surface-raised); border-radius: var(--r-2); padding: 22px 22px 20px; box-shadow: 0 0 0 1px rgba(39, 41, 45, .06); }
 .mon-total { display: flex; align-items: flex-end; gap: 12px; }
 .mon-total__n { font: 800 104px/.92 var(--font-kufi); color: var(--navy-800); font-variant-numeric: tabular-nums; }
 .mon-total__u { font: 700 17px/1.35 var(--font-kufi); color: var(--text-muted); padding-bottom: 8px; }
@@ -861,7 +865,7 @@
 .mon-govrow b, .mon-govrow small { transition: opacity var(--dur-2) var(--ease-out); }
 .mon-govrow b { font: 800 15px/1 var(--font-kufi); color: var(--navy-800); text-align: end; font-variant-numeric: tabular-nums; }
 .mon-govrow small { font: 500 12px/1 var(--font-kufi); color: var(--text-subtle); text-align: end; font-variant-numeric: tabular-nums; }
-.mon-map { box-shadow: 0 0 0 1px rgba(18, 52, 90, .08); }
+.mon-map { box-shadow: 0 0 0 1px rgba(39, 41, 45, .08); }
 .mon-choro { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .mon-gov { fill: var(--navy-800); fill-opacity: 0; stroke: var(--navy-800); stroke-opacity: .55; stroke-width: 1.2; transition: fill-opacity var(--dur-3) var(--ease-out); }
 .mon-gov[data-lvl="1"] { fill-opacity: .08; }
@@ -871,9 +875,9 @@
 .mon-legend { position: absolute; inset-block-end: 14px; inset-inline-end: 14px; background: rgba(252, 251, 248, .96); border: 1px solid var(--border); border-radius: var(--r-1); padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; font: 500 11.5px/1.3 var(--font-kufi); color: var(--text-muted); }
 .mon-legend__t { font-weight: 700; color: var(--ink-900); }
 .mon-legend__scale { display: grid; grid-template-columns: repeat(4, 24px); column-gap: 2px; row-gap: 4px; }
-.mon-legend__scale i { height: 10px; border: 1px solid rgba(18, 52, 90, .25); }
+.mon-legend__scale i { height: 10px; border: 1px solid rgba(39, 41, 45, .25); }
 .mon-legend__scale i[data-lvl="1"] { background: #E8E9E9; } .mon-legend__scale i[data-lvl="2"] { background: #D6DADC; }
-.mon-legend__scale i[data-lvl="3"] { background: #BAC2CA; } .mon-legend__scale i[data-lvl="4"] { background: #99A6B4; }
+.mon-legend__scale i[data-lvl="3"] { background: #C2C3C6; } .mon-legend__scale i[data-lvl="4"] { background: #A1A3A7; }
 .mon-legend__scale span { grid-row: 2; font-size: 11px; }
 .mon-legend__scale span:first-of-type { grid-column: 1 / 3; }
 .mon-legend__scale span:last-of-type { grid-column: 3 / 5; text-align: end; }
@@ -1092,7 +1096,7 @@
 .toast { border-radius: var(--r-2); }
 
 /* A raised surface for the few blocks that carry a verdict (the issue's figures) */
-.surface-raised { background: var(--surface-raised); border-radius: var(--r-2); padding: 20px 22px; box-shadow: 0 0 0 1px rgba(18, 52, 90, .06); }
+.surface-raised { background: var(--surface-raised); border-radius: var(--r-2); padding: 20px 22px; box-shadow: 0 0 0 1px rgba(39, 41, 45, .06); }
 
 /* The register line: every section says when it was last written to */
 .sec-rec { overflow: hidden; overflow: clip; overflow-clip-margin: 6px; margin-top: 10px; font: 500 12.5px/1.5 var(--font-kufi); color: var(--text-subtle); }
