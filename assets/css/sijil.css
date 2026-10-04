@@ -309,7 +309,7 @@
    ========================================================================== */
 .sec-head { border-top: var(--rule-heavy); padding-top: 18px; display: flex; align-items: flex-start; justify-content: space-between; gap: 32px; }
 .sec-head__title { display: flex; align-items: center; gap: 14px; }
-.sec-head__title h2 { font: 700 var(--fs-h2)/var(--lh-h2) var(--font-kufi); color: var(--navy-800); }
+.sec-head__title h2 { font: 700 var(--fs-h2)/var(--lh-h2) var(--font-kufi); color: var(--maroon); }
 .sec-head__desc { font: 400 15px/1.75 var(--font-kufi); color: var(--text-muted); max-width: 560px; margin-top: 6px; }
 .sec-head--inv { border-top-color: var(--gold-500); }
 .sec-head--inv .sec-head__title h2 { color: var(--paper-100); }
@@ -745,7 +745,9 @@
    Doc boards (design-system presentation helpers — not part of the theme)
    ========================================================================== */
 .doc-kicker { font: 400 12px/1 var(--font-mono); color: var(--accent-ink); direction: ltr; unicode-bidi: isolate; }
-.doc-title { font: 800 40px/1.3 var(--font-kufi); color: var(--navy-800); }
+.doc-title { font: 800 40px/1.3 var(--font-kufi); color: var(--maroon); }
+/* brand guide (Oct 2026): titles maroon, text charcoal. Page titles override their inline colour; dark sections keep light titles */
+.sj main h1:not(.inv h1), .sj main h1:not(.inv h1) a { color: var(--maroon) !important; }
 .doc-h { font: 700 20px/1.5 var(--font-kufi); color: var(--navy-800); }
 .doc-p { font: 400 15px/1.85 var(--font-kufi); color: var(--text-muted); }
 .doc-note { font: 400 12.5px/1.7 var(--font-kufi); color: var(--text-subtle); }
