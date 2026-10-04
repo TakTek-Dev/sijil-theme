@@ -269,7 +269,7 @@
 .masthead { background: var(--bg); border-bottom: 1px solid var(--border); position: relative; z-index: var(--z-sticky); }
 .masthead__bar { height: 84px; display: flex; align-items: center; gap: 40px; }
 .brand { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
-.brand img { height: 40px; width: auto; }
+.brand img { height: 52px; width: auto; }
 .brand__desc { font: 500 12px/1.6 var(--font-kufi); color: var(--text-subtle); padding-inline-start: 16px; border-inline-start: 1px solid var(--border); max-width: 196px; }
 .nav { display: flex; align-items: stretch; gap: 4px; height: 84px; margin-inline-start: auto; }
 .nav__a { position: relative; display: flex; align-items: center; gap: 7px; padding-inline: 14px; font: 600 15px/1 var(--font-kufi); color: var(--ink-800); white-space: nowrap; }
