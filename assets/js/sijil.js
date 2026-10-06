@@ -318,7 +318,7 @@
       var p = monData.periods[state.p];
       swap(k('lede'), p.lede); swap(k('title'), p.title); swap(k('total'), p.total);
       var dl = k('delta'); swap(dl, p.delta); dl.classList.toggle('delta--down', p.dcls === 'delta--down');
-      swap(k('src-l'), 'المصدر: ' + p.src[0] + '، قيد'); swap(k('src-n'), p.src[1]);
+      swap(k('src-l'), 'المصدر: ' + p.src);
       swap(k('strip'), p.strip); swap(k('strip2'), p.strip); swap(k('csv'), p.csv); swap(k('chart-t'), 'الانتهاكات ' + p.chart.t);
       var gmx = Math.max(p.govs.q, p.govs.d, p.govs.r, p.govs.o) || 1;
       $$('.mon-govrow', mon).forEach(function (row) {
@@ -342,11 +342,63 @@
       }
     }
 
+    // A period the reader chooses (client review, Oct 2026): counted from the daily briefs, same view, same morphs
+    var range = $('[data-period-range]', mon);
+    function counted(n, f) { return n === 1 ? f[0] : n === 2 ? f[1] : n <= 10 ? n + ' ' + f[2] : n + ' ' + f[3]; }
+    function focusLede(types, when) {
+      var hits = types.filter(function (t) { return monData.focus[t[0]] && t[1]; }).sort(function (a, b) { return b[1] - a[1]; });
+      if (!hits.length) return 'لا قصف ولا مداهمات موثقة ' + when;
+      return hits.map(function (t) { return counted(t[1], monData.focus[t[0]]); }).join(' و') + ' ' + when;
+    }
+    function lvl(n, mx) { if (!n) return 0; var r = n / mx; return r >= .75 ? 4 : r >= .35 ? 3 : r >= .12 ? 2 : 1; }
+    function chosenPeriod(from, to) {
+      var keys = Object.keys(monData.days).filter(function (d) { return d >= from && d <= to; }).sort();
+      if (!keys.length) return null;
+      var names = Object.keys(order).sort(function (a, b) { return order[a] - order[b]; });
+      var govs = { q: 0, d: 0, r: 0, o: 0 }, cross = { q: {}, d: {}, r: {} }, all = {}, values = [];
+      keys.forEach(function (d) {
+        var day = monData.days[d]; values.push(day.n);
+        Object.keys(day.g).forEach(function (g) {
+          Object.keys(day.g[g]).forEach(function (t) { var n = day.g[g][t]; govs[g] += n; cross[g][t] = (cross[g][t] || 0) + n; all[t] = (all[t] || 0) + n; });
+        });
+      });
+      var total = values.reduce(function (a, b) { return a + b; }, 0);
+      var d1 = +keys[0].slice(8), d2 = +keys[keys.length - 1].slice(8), one = d1 === d2;
+      var span = one ? 'يوم ' + d1 + ' سبتمبر 2026' : d1 + '-' + d2 + ' سبتمبر 2026';
+      var mx = Math.max(govs.q, govs.d, govs.r) || 1, cr = {};
+      ['q', 'd', 'r'].forEach(function (g) { cr[g] = names.map(function (t) { return [t, cross[g][t] || 0]; }); });
+      var types = names.map(function (t) { return [t, all[t] || 0]; });
+      return {
+        tab: 'فترة محددة', lede: focusLede(types, one ? 'يوم ' + d1 + ' سبتمبر' : 'بين ' + d1 + ' و' + d2 + ' سبتمبر'),
+        title: span, total: total, delta: '', dcls: '',
+        src: counted(keys.length, ['موجز يومي واحد', 'موجزان يوميان', 'موجزات يومية', 'موجزا يوميا']),
+        strip: span, csv: 'بيانات الفترة', govs: govs, lvl: { q: lvl(govs.q, mx), d: lvl(govs.d, mx), r: lvl(govs.r, mx) },
+        types: types, out: null, cross: cr,
+        chart: { t: 'يوما بيوم', labels: keys.map(function (d) { return String(+d.slice(8)); }), values: values, hi: values.length - 1 }
+      };
+    }
+    function applyRange() {
+      if (!range) return false;
+      var a = range.elements.from.value, z = range.elements.to.value;
+      if (!a || !z) return false;
+      if (a > z) { var t = a; a = z; z = t; range.elements.from.value = a; range.elements.to.value = z; }
+      var p = chosenPeriod(a, z); if (!p) { toast('لا موجزات في هذه الفترة'); return false; }
+      monData.periods.custom = p; return true;
+    }
+    if (range) range.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (!applyRange()) return;
+      state.p = 'custom'; render(); setChart(monData.periods.custom.chart);
+    });
+
     var sw = $('[data-period-switch]', mon);
     if (sw) sw.addEventListener('click', function (e) {
-      var b = e.target.closest('button[data-p]'); if (!b || b.getAttribute('data-p') === state.p) return;
-      state.p = b.getAttribute('data-p');
-      if (state.p !== 'week') state.sel = null;
+      var b = e.target.closest('button[data-p]'); if (!b) return;
+      var key = b.getAttribute('data-p');
+      if (range) range.hidden = key !== 'custom';
+      if (key === 'custom' && !applyRange()) return;
+      if (key === state.p && key !== 'custom') return;
+      state.p = key;
       render(); setChart(monData.periods[state.p].chart);
     });
     var selChip = k('sel');
@@ -581,6 +633,7 @@
   $$('form').forEach(function (f) {
     f.addEventListener('submit', function (e) {
       e.preventDefault();
+      if (f.hasAttribute('data-period-range') || f.hasAttribute('data-query')) return;  // the monitor (module 6) and the brief query (module 26) answer these
       if (f.getAttribute('role') === 'search' || f.closest('[role="search"]')) {
         if (f.hasAttribute('data-live-search')) return;  // it answers as you type (modules 22 and 24)
         var q = $('input', f); location.href = 'search.html' + (q && q.value ? '?q=' + encodeURIComponent(q.value) : '');
@@ -603,11 +656,6 @@
       }
       var mail = $('input[type="email"]', f);
       if (mail && !mail.value.trim()) { mail.focus(); toast('اكتب بريدك الإلكتروني أولا'); return; }
-      if (f.closest('.newsletter, .footer__nl')) {
-        var ok = document.createElement('p'); ok.className = 'nl-done'; ok.setAttribute('role', 'status');
-        ok.textContent = 'تم الاشتراك. تصلك النشرة صباح كل أحد.';
-        f.replaceWith(ok); return;
-      }
       toast('وصلت رسالتك. نرد خلال يومي عمل.');
       f.reset();
     });
@@ -1111,7 +1159,7 @@
     }
     function sortMode() { var r = $('[data-s-sort].is-on'); return r ? r.getAttribute('data-s-sort') : 'rel'; }
     function row(it, words) {
-      return '<article class="entry" data-type="' + it.t + '" style="grid-template-columns:150px minmax(0,1fr)"><div class="entry__type" style="gap:8px"><span class="tag tag--' + it.t + ' ">' + it.tn + '</span><span class="entry__date" style="padding:0">' + it.date + '</span><span class="recno"><span>قيد</span><b>' + it.id + '</b></span></div>' +
+      return '<article class="entry" data-type="' + it.t + '" style="grid-template-columns:150px minmax(0,1fr)"><div class="entry__type" style="gap:8px"><span class="tag tag--' + it.t + ' ">' + it.tn + '</span><span class="entry__date" style="padding:0">' + it.date + '</span><span class="recno"><b>' + it.id + '</b></span></div>' +
         '<div><a class="entry__title" href="' + it.href + '">' + mark(it.title, words) + '</a>' + (it.ex ? '<p class="entry__ex" style="-webkit-line-clamp:3">' + mark(it.ex, words) + '</p>' : '') +
         '<div class="entry__by"><div class="meta "><div class="meta__row"><span>' + esc(it.by) + '</span><span>' + esc(it.sub || it.tn) + '</span></div></div></div></div></article>';
     }
@@ -1148,7 +1196,7 @@
       tabs.forEach(function (b) { var sm = $('small', b); if (sm) sm.textContent = counts[b.getAttribute('data-s-tab')]; });
       if (dossier) { var dn = normAr(dossier.getAttribute('data-s-dossier')); dossier.hidden = !words.length || !words.every(function (w) { return dn.indexOf(w) >= 0; }); }
       var mode = sortMode() === 'new' ? 'الأحدث أولا' : 'مرتبة بحسب الصلة';
-      countEl.innerHTML = !words.length ? 'اكتب كلمة أو رقم قيد للبحث في سجل.' :
+      countEl.innerHTML = !words.length ? 'اكتب كلمة أو رقم مادة للبحث في سجل.' :
         (pubs.length ? '<b style="color:var(--ink-900)">' + plural(pubs.length, 'نتيجة واحدة', 'نتيجتان', 'نتائج', 'نتيجة') + '</b> لـ«' + esc(q) + '» في المواد المنشورة، ' + mode : 'لا نتائج لـ«' + esc(q) + '» في المواد المنشورة.');
       if (h1) h1.textContent = words.length ? 'نتائج البحث عن «' + q + '»' : 'البحث في سجل';
       document.title = (words.length ? 'نتائج البحث: ' + q : 'البحث') + ' | سجل';
@@ -1226,6 +1274,52 @@
     $$('[data-count]', f).forEach(function (c) { c.textContent = '0 / ' + c.getAttribute('data-count'); });
     box.hidden = true; f.hidden = false;
     var first = $('input, textarea', f); if (first) first.focus();
+  });
+
+  /* 26. Daily briefs (client review, Oct 2026): a day's figures three ways, and a query over the daily briefs */
+  $$('[data-views-box]').forEach(function (box) {
+    var seg = $('[data-views]', box); if (!seg) return;
+    seg.addEventListener('click', function (e) {
+      var b = e.target.closest('button[data-v]'); if (!b) return;
+      segPick(b);
+      $$('table[data-view]', box).forEach(function (t) { t.hidden = t.getAttribute('data-view') !== b.getAttribute('data-v'); });
+    });
+  });
+  $$('[data-query-box]').forEach(function (box) {
+    var data; try { data = JSON.parse($('[data-query-data]', box).textContent); } catch (e) { return; }
+    var f = $('[data-query]', box), ans = $('[data-q-answer]', box), tbl = $('[data-q-table]', box), link = $('[data-q-link]', box);
+    var GOV = { q: 'القنيطرة', d: 'درعا', r: 'ريف دمشق' };
+    var TYPES = Array.prototype.map.call(f.elements.type.options, function (o) { return o.value; }).filter(function (v) { return v !== 'all'; });
+    function counted(n) { return n === 1 ? 'انتهاكا واحدا' : n === 2 ? 'انتهاكين' : n <= 10 ? n + ' انتهاكات' : n + ' انتهاكا'; }
+    function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+    function cell(n, sum) { return '<td class="' + (n ? '' : 'is-zero') + (sum ? ' is-sum' : '') + '">' + n + '</td>'; }
+    function render() {
+      var day = data[f.elements.day.value], g = f.elements.gov.value, t = f.elements.type.value;
+      if (!day) return;
+      var dnum = +f.elements.day.value.slice(8), when = ' يوم ' + day.w + ' ' + dnum + ' سبتمبر 2026';
+      var govs = Object.keys(day.g);
+      var count = function (gg, tt) { var src = day.g[gg] || {}; return tt === 'all' ? Object.keys(src).reduce(function (a, k) { return a + src[k]; }, 0) : (src[tt] || 0); };
+      var n = (g === 'all' ? govs : [g]).reduce(function (a, gg) { return a + count(gg, t); }, 0);
+      var what = (t === 'all' ? '' : ' من نوع «' + esc(t) + '»') + (g === 'all' ? '' : ' في ' + GOV[g]);
+      ans.innerHTML = n ? 'وثق سجل <b>' + counted(n) + '</b>' + what + when + '.' : 'لم يوثق سجل أي انتهاك' + what + when + '.';
+      var html = '';
+      if (g === 'all' && t === 'all') {
+        html = '<table class="dtable"><thead><tr><th scope="col">النوع</th>' + govs.map(function (gg) { return '<th scope="col">' + GOV[gg] + '</th>'; }).join('') + '<th scope="col">المجموع</th></tr></thead><tbody>' +
+          TYPES.filter(function (tt) { return govs.some(function (gg) { return count(gg, tt); }); }).map(function (tt) {
+            return '<tr><th scope="row">' + esc(tt) + '</th>' + govs.map(function (gg) { return cell(count(gg, tt)); }).join('') + cell(govs.reduce(function (a, gg) { return a + count(gg, tt); }, 0), true) + '</tr>';
+          }).join('') + '</tbody></table>';
+      } else if (t === 'all') {
+        html = '<table class="dtable"><thead><tr><th scope="col">النوع</th><th scope="col">' + GOV[g] + '</th></tr></thead><tbody>' +
+          TYPES.filter(function (tt) { return count(g, tt); }).map(function (tt) { return '<tr><th scope="row">' + esc(tt) + '</th>' + cell(count(g, tt), true) + '</tr>'; }).join('') + '</tbody></table>';
+      } else if (g === 'all') {
+        html = '<table class="dtable"><thead><tr><th scope="col">المحافظة</th><th scope="col">' + esc(t) + '</th></tr></thead><tbody>' +
+          govs.map(function (gg) { return '<tr><th scope="row">' + GOV[gg] + '</th>' + cell(count(gg, t), true) + '</tr>'; }).join('') + '</tbody></table>';
+      }
+      tbl.innerHTML = n ? html : '';
+      if (link) $('span', link).textContent = 'افتح موجز ' + day.w + ' ' + dnum + ' سبتمبر';
+    }
+    f.addEventListener('change', render);
+    render();
   });
 
   /* 18. Toast: enters and leaves by the same edge ------------------------ */
